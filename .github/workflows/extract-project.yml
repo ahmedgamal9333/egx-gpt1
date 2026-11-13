@@ -13,34 +13,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract project archive
+      - name: Extract project archive safely
         run: |
           python3 -c "
 import zipfile, os, sys
+from pathlib import Path
 
 archive = 'EGX_AI_Analyst_reviewed_safety_patch.zip'
 try:
     with zipfile.ZipFile(archive, 'r') as zf:
         for member in zf.namelist():
-            # Reject path traversal
-            if '..' in member or member.startswith('/'):
+            dest = Path('.').resolve() / member
+            dest = dest.resolve()
+ repo_root = Path('.').resolve()
+            if dest != repo_root and not str(dest).startswith(str(repo_root) + os.sep):
                 print(f'Rejecting path traversal: {member}')
                 sys.exit(1)
-            zf.extract(member, '/')
+        for member in zf.namelist():
+ zf.extract(member, Path('.').resolve())
     print('Extraction successful.')
 except Exception as e:
     print(f'Extraction failed: {e}')
     sys.exit(1)
 "
-
       - name: Stage extracted files
-        run: git add -A
-
-      - name: Commit and push if changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --cached --quiet; then
-            git commit -m "Extract uploaded project archive"
+          git add -A
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions bot"
+          git config user.email "actions@github.com"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Extract project archive"
             git push
           fi
