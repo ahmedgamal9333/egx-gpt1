@@ -1,0 +1,47 @@
+name: Repair Vercel API Function
+'on':
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: vercel-api-fix
+      - name: Write valid catch-all API and remove nested duplicate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p api
+          cat > 'api/[...path].ts' <<'EOF'
+          import { createServerlessApp } from '../server';
+
+          let appPromise: any;
+
+          export default async function handler(req: any, res: any) {
+            try {
+              appPromise ||= createServerlessApp();
+              const app = await appPromise;
+              return app(req, res);
+            } catch (error: any) {
+            
+              console.error('Vercel API initialization failed:', error);
+              return res.status(500).json({ error: 'API initialization failed' });
+            }
+          }
+          EOF
+          rm -f 'api/api/[...path].ts'
+          rmdir api/api 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No repair changes needed'
+          else
+            git commit -m 'Repair Vercel catch-all API handler'
+            git push origin HEAD:vercel-api-fix
+          fi
+          
