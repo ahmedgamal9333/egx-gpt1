@@ -1,0 +1,1579 @@
+EGX AI Analyst
+
+Master Development Specification – Complete Edition
+
+PART 1: PROJECT DEFINITION
+
+1.1 Project Overview
+
+Build a complete, professional, AI-powered financial analysis and investment decision platform dedicated to the Egyptian Exchange (EGX).
+
+The application must cover all listed Egyptian stocks and provide comprehensive analysis based on:
+
+1. Market prices and historical trading data.
+2. Technical analysis.
+3. Fundamental and financial analysis.
+4. Corporate news and official disclosures.
+5. Market liquidity and trading activity.
+6. Sector and market performance.
+7. Fair value estimation.
+8. Artificial intelligence and investment decision-making.
+
+The system must act as an intelligent investment analyst, not merely a stock information dashboard.
+
+Its primary responsibility is to collect information, validate it, understand the company's financial and market situation, analyze the stock, and produce a clear, evidence-based investment recommendation.
+
+1.2 Investment Strategy
+
+Adopt the following investment strategy:
+
+- Trading style: Balanced Swing Trading.
+- Expected holding period: 1 week to 1 month.
+- Primary objective: Identify high-quality trading opportunities with favorable risk/reward ratios.
+- Avoid chasing stocks after excessive price increases.
+- Avoid entering weak stocks simply because their prices have declined.
+- Consider the broader market direction before recommending new positions.
+- Distinguish short-term trading opportunities from long-term investment value.
+
+1.3 Primary Decision Objective
+
+For every Egyptian stock, the platform must answer:
+
+- Is this stock worth buying now?
+- Is it better to wait for a lower entry price?
+- Is the stock suitable for holding?
+- Is it time to reduce the position?
+- Is it time to exit?
+- What is the best entry price?
+- What are the expected targets?
+- Where should the stop loss be placed?
+- What is the estimated fair value?
+- What is the current and expected trend?
+- What are the most important positive and negative factors?
+- How reliable is the recommendation?
+
+The final result must be presented in clear Arabic, supported by numerical evidence.
+
+PART 2: DATA SOURCES AND INTELLIGENT SOURCE SELECTION
+
+2.1 Multi-Source Data Architecture
+
+Do not assign permanent priority to any individual website.
+
+Do not assume that one source is always more accurate or more up-to-date than another.
+
+Build an intelligent multi-source data collection system that searches, compares, validates, and selects the best available information for each stock and each data category.
+
+The selection process must be based on actual data quality, not the name or popularity of the website.
+
+2.2 Suggested Data Sources
+
+Integrate as many of the following sources as technically possible.
+
+These are candidate sources, not a requirement to use every website regardless of availability.
+
+A. Stock Prices and Historical Market Data
+
+- Yahoo Finance.
+- Investing.com.
+- TradingView, where permitted data access exists.
+- Mubasher Info.
+- DirectFN.
+- Twelve Data.
+- Alpha Vantage.
+- Finnhub.
+- EODHD.
+- Financial Modeling Prep.
+- Stooq, where suitable historical data is available.
+- Other reliable market data providers.
+
+B. Egyptian Official Market Sources
+
+- Egyptian Exchange (EGX).
+- EGID.
+- Official company investor relations websites.
+- Official corporate financial statements.
+- Official company announcements and disclosures.
+- Egyptian Financial Regulatory Authority (FRA).
+
+C. Financial News and Research Sources
+
+- Mubasher.
+- Investing.com.
+- Argaam.
+- Reuters.
+- Bloomberg.
+- CNBC Arabia.
+- Enterprise.
+- Other reliable Egyptian and international financial news providers.
+
+D. Economic and Macroeconomic Sources
+
+- Central Bank of Egypt (CBE).
+- CAPMAS.
+- Ministry of Finance.
+- Official economic publications.
+- Relevant international economic data providers.
+
+Use these sources to analyze inflation, interest rates, currency conditions, economic activity, and other factors affecting Egyptian companies.
+
+2.3 Automatic Source Discovery and Evaluation
+
+Create an independent Source Intelligence Engine.
+
+Its responsibilities:
+
+1. Maintain a configurable registry of available sources.
+2. Discover available APIs and supported data feeds.
+3. Test source availability.
+4. Monitor response quality.
+5. Monitor data update frequency.
+6. Detect missing or incomplete information.
+7. Compare information between independent sources.
+8. Measure historical source reliability.
+9. Automatically select suitable sources for each data category.
+10. Switch to alternative sources when a provider fails.
+11. Record every source used in every analysis.
+
+The source registry must support adding, disabling, and updating providers without changing the entire application.
+
+2.4 Intelligent Data Selection Rules
+
+For each stock, separately evaluate:
+
+- Latest market price.
+- Daily historical prices.
+- Trading volume.
+- Financial statements.
+- Earnings and EPS.
+- Corporate actions.
+- Company disclosures.
+- News.
+- Dividend information.
+- Sector data.
+
+Use a dynamic quality score based on:
+
+- Accuracy and verification.
+- Freshness.
+- Completeness.
+- Source reliability.
+- Independent corroboration.
+- Data consistency.
+- Historical source performance.
+
+Do not simply choose the newest number.
+
+A newer number from an unreliable source must not automatically replace a verified number from a more reliable source.
+
+For official corporate disclosures, the original company or exchange document must remain the authoritative reference.
+
+For market prices, compare timestamps and trading sessions carefully.
+
+2.5 Data Conflict Resolution
+
+If two sources report different prices:
+
+1. Verify that both prices refer to the same ticker.
+2. Verify currency and trading session.
+3. Verify whether one is adjusted and the other unadjusted.
+4. Verify timestamps.
+5. Check for corporate actions.
+6. Compare with additional independent providers.
+7. Select the best-supported value or mark the discrepancy unresolved.
+
+Never silently average incompatible prices.
+
+If the conflict cannot be resolved, show the conflict and lower confidence in the analysis.
+
+2.6 Source Transparency
+
+Every important displayed figure must have:
+
+- Value.
+- Source name.
+- Retrieval timestamp.
+- Original publication or market timestamp, when available.
+- Data status.
+- Verification status.
+
+Data status must distinguish:
+
+- Live.
+- Delayed.
+- Latest available.
+- Historical.
+- Estimated.
+- Unavailable.
+
+Never claim real-time data unless the provider actually supplies verified real-time data.
+
+Do not invent APIs, scrape sites in violation of their terms, or assume that a provider offers a free API.
+
+Use official APIs, permitted feeds, and accessible sources. Clearly report providers requiring paid access or credentials.
+
+PART 3: EGYPTIAN STOCK UNIVERSE
+
+3.1 Complete Market Coverage
+
+Build a stock universe containing all available Egyptian Exchange listings.
+
+The system must automatically maintain:
+
+- Stock ticker.
+- Arabic company name.
+- English company name.
+- Sector.
+- Industry.
+- Trading currency.
+- Listing status.
+- Company website.
+- Investor relations page.
+- Available financial and market data providers.
+
+3.2 Ticker Mapping
+
+Create a central ticker mapping database.
+
+Different providers may use different ticker formats.
+
+The system must map the same Egyptian company correctly across all providers.
+
+Examples of possible Yahoo Finance symbols include:
+
+- COMI.CA.
+- TMGH.CA.
+- SWDY.CA.
+
+Verify every symbol before using it.
+
+Do not assume that every provider uses the same symbol format.
+
+Avoid mixing data from different companies with similar names.
+
+3.3 Corporate Actions
+
+Account for:
+
+- Stock splits.
+- Reverse splits.
+- Bonus shares.
+- Cash dividends.
+- Capital increases.
+- Rights issues.
+- Trading suspensions.
+- Changes in share count.
+
+Distinguish adjusted historical prices from unadjusted trading prices.
+
+Use adjusted data for appropriate historical return calculations and unadjusted tradable prices for actual entry and exit levels.
+
+PART 4: MARKET DATA ENGINE
+
+4.1 Automatic Collection
+
+Create an automated market data engine that retrieves available data according to configurable schedules.
+
+Required information:
+
+- Latest available stock price.
+- Previous close.
+- Open.
+- High.
+- Low.
+- Close.
+- Volume.
+- Value traded.
+- Number of trades when available.
+- Historical OHLCV.
+- Market capitalization.
+- Shares outstanding.
+- Free float when available.
+
+4.2 Historical Data
+
+Retrieve at least 3 to 5 years of historical data when available.
+
+Prefer longer historical periods for companies with sufficient listing history.
+
+Support daily, weekly, and monthly historical datasets.
+
+Support intraday data only when a valid provider supplies it.
+
+4.3 Data Validation
+
+Validate:
+
+- Missing trading sessions.
+- Abnormal price changes.
+- Zero or negative prices.
+- Abnormal volume.
+- Duplicate records.
+- Incorrect ticker mapping.
+- Incorrect dates.
+- Corporate action distortions.
+
+Store raw data separately from normalized data.
+
+Never overwrite original provider records without retaining their provenance.
+
+4.4 Automatic Updating
+
+Create scheduled updates for:
+
+- Market prices.
+- Historical data.
+- Financial statements.
+- Company news.
+- Official disclosures.
+- Market indices.
+- Sector performance.
+
+Use appropriate update frequencies based on provider limitations and the EGX trading calendar.
+
+Do not unnecessarily request the same data repeatedly.
+
+Implement caching, rate limiting, retry mechanisms, and error logging.
+
+After market close, perform a data reconciliation process for the latest completed trading session.
+
+The system must distinguish market closure from provider failure.
+
+PART 5: ADVANCED TECHNICAL ANALYSIS ENGINE
+
+5.1 Required Technical Indicators
+
+Implement and calculate the following indicators using verified price and volume data:
+
+Moving Averages
+
+- EMA 9.
+- EMA 20.
+- EMA 50.
+- EMA 100.
+- EMA 200.
+- SMA 20.
+- SMA 50.
+- SMA 100.
+- SMA 200.
+
+Momentum Indicators
+
+- RSI 14.
+- MACD.
+- MACD Signal.
+- MACD Histogram.
+- Stochastic.
+- ADX.
+- Momentum.
+
+Volatility Indicators
+
+- Bollinger Bands.
+- ATR.
+- Historical volatility.
+
+Volume Indicators
+
+- OBV.
+- VWAP when valid intraday data is available.
+- Volume moving averages.
+- Relative Volume.
+- Volume expansion and contraction.
+- Unusual trading activity detection.
+
+Additional Technical Tools
+
+- Fibonacci Retracement.
+- Support and Resistance.
+- Trendlines.
+- Price Action.
+- Candlestick Patterns.
+- Breakout Detection.
+- Breakdown Detection.
+- Bullish and Bearish Divergences.
+- Consolidation Detection.
+- Gap Analysis.
+
+5.2 Multi-Timeframe Analysis
+
+Analyze each stock using:
+
+- Daily timeframe.
+- Weekly timeframe.
+- Monthly timeframe.
+- 4-hour timeframe when reliable data exists.
+
+For every timeframe identify:
+
+- Primary trend.
+- Secondary trend.
+- Momentum.
+- Trend strength.
+- Support and resistance.
+- Overbought and oversold conditions.
+- Potential reversal points.
+
+5.3 Trend Agreement
+
+Build a multi-timeframe trend agreement engine.
+
+Examples:
+
+- Monthly bullish + weekly bullish + daily bullish: Stronger trend alignment.
+- Monthly bullish + weekly bullish + daily bearish: Potential temporary correction.
+- Monthly bearish + weekly bearish + daily bullish: Possible countertrend rally.
+- Conflicting timeframes: Lower recommendation confidence.
+
+Do not treat a short-term bullish signal as a confirmed long-term trend reversal.
+
+5.4 Support and Resistance Engine
+
+Automatically identify important price zones.
+
+Use:
+
+- Historical swing highs and lows.
+- Repeated price reactions.
+- Volume concentration.
+- Moving averages.
+- Fibonacci levels.
+- Trendline interactions.
+
+Use price zones rather than pretending that every support or resistance is an exact price.
+
+Display the strength of each zone and its supporting evidence.
+
+5.5 Breakout Confirmation
+
+A breakout must be evaluated using:
+
+- Closing price relative to resistance.
+- Relative volume.
+- Trend strength.
+- Market direction.
+- Subsequent price confirmation.
+- Risk/reward after the breakout.
+
+Detect potential false breakouts and failed breakdowns.
+
+PART 6: FUNDAMENTAL AND FINANCIAL ANALYSIS ENGINE
+
+6.1 Financial Statements
+
+Retrieve the latest available:
+
+- Income statements.
+- Balance sheets.
+- Cash flow statements.
+- Annual reports.
+- Quarterly reports.
+- Interim financial statements.
+- Auditor reports when available.
+
+Analyze the last four years where available, together with the latest reported quarters.
+
+Record the publication date and financial reporting period separately.
+
+Never treat the reporting period end date as the publication date.
+
+6.2 Financial Ratios
+
+Calculate:
+
+Profitability
+
+- Revenue Growth.
+- Gross Profit Margin.
+- Operating Profit Margin.
+- Net Profit Margin.
+- ROE.
+- ROA.
+- ROIC when sufficient data exists.
+
+Valuation
+
+- EPS.
+- P/E.
+- Forward P/E only when justified forecasts exist.
+- P/B.
+- EV/EBITDA when appropriate.
+- Dividend Yield.
+- Free Cash Flow Yield.
+
+Financial Strength
+
+- Debt to Equity.
+- Current Ratio.
+- Quick Ratio.
+- Interest Coverage.
+- Operating Cash Flow.
+- Free Cash Flow.
+- Cash Conversion.
+
+Growth
+
+- Revenue CAGR.
+- Earnings CAGR.
+- EPS Growth.
+- Book Value Growth.
+- Dividend Growth.
+
+6.3 Financial Quality Assessment
+
+Evaluate:
+
+- Consistency of earnings.
+- Quality of reported profits.
+- Cash flow generation.
+- Debt sustainability.
+- Revenue growth.
+- Profit margin stability.
+- Capital efficiency.
+- Financial risks.
+- Earnings volatility.
+
+Do not confuse accounting profit with cash generation.
+
+6.4 Sector-Specific Financial Models
+
+Do not apply identical valuation rules to every sector.
+
+Create suitable financial analysis profiles for:
+
+- Banks.
+- Financial services.
+- Real estate.
+- Industrial companies.
+- Construction.
+- Food and beverages.
+- Healthcare.
+- Telecommunications.
+- Chemicals.
+- Energy.
+- Consumer goods.
+
+For example, use bank-specific metrics such as capital adequacy, asset quality, non-performing loans, and net interest margin when available.
+
+Avoid inappropriate DCF or EV/EBITDA assumptions for businesses where those methods are unsuitable.
+
+PART 7: FAIR VALUE VALUATION ENGINE
+
+7.1 Valuation Methods
+
+Build a dedicated fair value engine that can use multiple methods:
+
+1. Discounted Cash Flow (DCF).
+2. Comparable Company Valuation.
+3. P/E Valuation.
+4. P/B Valuation.
+5. Dividend Discount Model.
+6. EV/EBITDA when suitable.
+7. Sector-specific valuation methods.
+
+Select methods based on company type, financial data quality, and availability of reliable assumptions.
+
+7.2 DCF Requirements
+
+Where appropriate, calculate:
+
+- Forecast revenue.
+- Operating margins.
+- Tax assumptions.
+- Capital expenditure.
+- Working capital.
+- Free cash flow.
+- Discount rate.
+- Terminal growth.
+- Enterprise value.
+- Equity value.
+- Fair value per share.
+
+Display all important assumptions.
+
+Do not present hypothetical forecasts as actual financial data.
+
+7.3 Fair Value Results
+
+For each stock display:
+
+- Estimated fair value.
+- Conservative valuation.
+- Base valuation.
+- Optimistic valuation.
+- Current market price.
+- Upside or downside to fair value.
+- Margin of safety.
+- Valuation method.
+- Valuation date.
+- Data completeness.
+- Confidence level.
+
+If there is insufficient information, display Fair Value Unavailable or Low Confidence.
+
+Never invent a fair value.
+
+PART 8: NEWS AND CORPORATE DISCLOSURE INTELLIGENCE
+
+8.1 Automatic News Collection
+
+Continuously monitor available sources for:
+
+- Company news.
+- EGX disclosures.
+- Earnings announcements.
+- Dividend announcements.
+- Board decisions.
+- Capital increases.
+- Acquisitions.
+- Mergers.
+- Contracts.
+- Legal developments.
+- Management changes.
+- Regulatory developments.
+- Sector news.
+
+8.2 AI News Understanding
+
+The AI must read the actual available news content, not merely the headline.
+
+For every news item:
+
+1. Identify the company.
+2. Identify the event.
+3. Extract the main facts.
+4. Determine whether the information is confirmed.
+5. Identify the publication date.
+6. Summarize in Arabic.
+7. Classify the effect as positive, negative, or neutral.
+8. Estimate the potential significance.
+9. Explain why it matters.
+10. Connect the news to the stock analysis.
+
+8.3 News Impact Analysis
+
+Classify news impact as:
+
+- Very Positive.
+- Positive.
+- Neutral.
+- Negative.
+- Very Negative.
+
+Distinguish between:
+
+- Immediate impact.
+- Short-term impact.
+- Medium-term impact.
+
+Detect duplicate news and distinguish the original announcement from subsequent coverage.
+
+Never interpret rumors as confirmed facts.
+
+8.4 Event Risk
+
+Identify upcoming events that could affect the stock:
+
+- Earnings releases.
+- Shareholder meetings.
+- Dividend dates.
+- Capital increases.
+- Rights issues.
+- Regulatory decisions.
+
+Use verified dates and clearly identify unconfirmed or estimated dates.
+
+PART 9: AI INVESTMENT DECISION ENGINE
+
+9.1 Core Requirement
+
+This is the most important component of the entire application.
+
+Build an advanced AI Investment Analyst that combines all available information to produce one final investment decision.
+
+The AI must not merely summarize indicators.
+
+It must reason across:
+
+- Technical analysis.
+- Financial analysis.
+- Fair value.
+- News and disclosures.
+- Market liquidity.
+- Sector performance.
+- Market direction.
+- Risk and reward.
+- Data quality.
+
+The AI must be able to explain why a stock is attractive or unattractive at its current price.
+
+9.2 AI Analysis Workflow
+
+Whenever a stock is selected, execute the following workflow:
+
+1. Identify the correct company and ticker.
+2. Collect the latest available price data.
+3. Collect historical trading data.
+4. Retrieve financial statements.
+5. Retrieve recent company news.
+6. Retrieve official disclosures.
+7. Verify information across sources.
+8. Calculate technical indicators.
+9. Analyze multiple timeframes.
+10. Calculate financial ratios.
+11. Estimate fair value.
+12. Analyze sector and market conditions.
+13. Identify major risks.
+14. Generate bullish, bearish, and neutral scenarios.
+15. Calculate entry and exit levels.
+16. Evaluate reward versus risk.
+17. Generate the final AI recommendation.
+18. Save the recommendation with its evidence and timestamp.
+
+9.3 Recommendation Categories
+
+The AI must choose one of the following:
+
+- STRONG BUY.
+- BUY.
+- WAIT.
+- HOLD.
+- REDUCE.
+- SELL.
+- AVOID.
+
+Each category must have a clear operational meaning.
+
+BUY: An attractive entry opportunity exists and the entry conditions are sufficiently confirmed.
+
+WAIT: The stock may be attractive, but the current price or market conditions are not suitable.
+
+HOLD: Existing positions may be maintained while the thesis remains valid.
+
+REDUCE: Risk or deterioration justifies reducing exposure.
+
+SELL: The investment thesis is invalidated or exit conditions are met.
+
+AVOID: Data quality, liquidity, financial weakness, or risk makes the stock unsuitable.
+
+STRONG BUY: A high-quality opportunity with strong supporting evidence and favorable risk/reward, subject to all data and risk checks.
+
+9.4 AI Recommendation Output
+
+Every stock analysis must provide:
+
+Investment Decision
+
+- Final recommendation.
+- Current price.
+- Current trend.
+- Expected short-term trend.
+- Recommendation date and time.
+- Expected holding period.
+- Overall evaluation score.
+- Recommendation confidence.
+
+Entry Strategy
+
+- Preferred entry zone.
+- Alternative entry zone.
+- Breakout entry condition.
+- Entry confirmation requirements.
+- Conditions under which the entry becomes invalid.
+
+Exit Strategy
+
+- Stop-loss level.
+- First target.
+- Second target.
+- Third target.
+- Trailing stop suggestion where appropriate.
+- Exit conditions.
+- Conditions for reducing the position.
+
+Valuation
+
+- Fair value.
+- Conservative value.
+- Optimistic value.
+- Current discount or premium.
+- Margin of safety.
+
+Risk Assessment
+
+- Risk level.
+- Expected downside.
+- Expected upside.
+- Reward/risk ratio.
+- Liquidity risk.
+- News risk.
+- Fundamental risk.
+- Technical risk.
+
+Explanation
+
+Provide a clear Arabic explanation of:
+
+- Why the AI selected this recommendation.
+- What supports the decision.
+- What contradicts the decision.
+- What could change the recommendation.
+- What the investor should monitor.
+
+9.5 Recommendation Scoring System
+
+Build an initial weighted evaluation model:
+
+Component| Weight
+Technical analysis| 35%
+Fundamental analysis| 25%
+Liquidity and volume| 15%
+News and disclosures| 15%
+Market and sector conditions| 10%
+Total| 100%
+
+The model must be configurable.
+
+Calculate each component separately.
+
+Do not allow a high score in one category to hide serious problems in another category.
+
+Introduce mandatory risk gates.
+
+Examples:
+
+- Severe negative official disclosure.
+- Extremely weak liquidity.
+- Unresolved price data conflict.
+- Insufficient historical data.
+- Major financial deterioration.
+- Trading suspension.
+- Unacceptable risk/reward.
+
+These conditions must prevent inappropriate BUY recommendations.
+
+9.6 Confidence Score
+
+The confidence score must be separate from the stock quality score.
+
+Calculate confidence using:
+
+- Data completeness.
+- Data freshness.
+- Source agreement.
+- Signal consistency.
+- Financial statement availability.
+- News verification.
+- Historical strategy reliability.
+
+A company can have excellent financial quality but a low-confidence trading signal.
+
+The system must recognize this difference.
+
+9.7 Scenario Analysis
+
+For each stock generate:
+
+Bullish Scenario
+
+What conditions could support an upward movement?
+
+Bearish Scenario
+
+What could cause a decline?
+
+Neutral Scenario
+
+What if the stock remains within a trading range?
+
+For each scenario show:
+
+- Supporting conditions.
+- Relevant price levels.
+- Expected direction.
+- Confirmation signals.
+- Invalidation conditions.
+
+Do not assign unsupported numerical probabilities.
+
+PART 10: ENTRY, EXIT AND RISK MANAGEMENT ENGINE
+
+10.1 Entry Zone Calculation
+
+Entry prices must be calculated from actual market structure.
+
+Consider:
+
+- Support zones.
+- Moving averages.
+- Fibonacci levels.
+- Trendlines.
+- Volume clusters.
+- Price action.
+- Volatility.
+- Market conditions.
+
+Prefer entry zones rather than unjustifiably precise prices.
+
+10.2 Stop-Loss Calculation
+
+Use a combination of:
+
+- Technical invalidation levels.
+- ATR.
+- Support structure.
+- Volatility.
+- Liquidity.
+
+Stop-loss levels must be placed logically, not at arbitrary percentages.
+
+Account for possible gaps and execution slippage.
+
+10.3 Profit Targets
+
+Calculate targets using:
+
+- Resistance levels.
+- Price structures.
+- Fibonacci extensions.
+- Risk/reward multiples.
+- Volatility expectations.
+
+Each target must have an explanation.
+
+10.4 Reward/Risk
+
+Calculate:
+
+Reward/Risk = Expected Profit / Potential Loss.
+
+Display the expected reward/risk ratio for every entry plan.
+
+Avoid recommendations with unattractive reward/risk profiles.
+
+Use a configurable minimum acceptable ratio, initially 2:1 where market conditions permit.
+
+Do not force a 2:1 ratio if the actual technical structure does not support it; issue WAIT instead.
+
+10.5 Position Sizing
+
+Allow the user to enter:
+
+- Total investment capital.
+- Maximum acceptable risk per trade.
+- Entry price.
+- Stop-loss.
+
+Calculate an indicative position size based on risk limits and liquidity.
+
+Do not assume that all available capital should be invested in one stock.
+
+PART 11: EGX AI STOCK SCREENER
+
+11.1 Automatic Market Scanning
+
+Scan all supported Egyptian stocks automatically.
+
+Identify:
+
+- Strong buy opportunities.
+- Potential breakout stocks.
+- Stocks near support.
+- Stocks with unusual volume.
+- Stocks with improving momentum.
+- Undervalued stocks.
+- Stocks with improving earnings.
+- Stocks with positive disclosures.
+- Stocks showing reversal signals.
+- Stocks with deteriorating fundamentals.
+- Stocks approaching exit conditions.
+
+11.2 Ranking
+
+Allow sorting by:
+
+- Best overall opportunity.
+- Highest quality score.
+- Highest confidence.
+- Best reward/risk.
+- Closest entry opportunity.
+- Best fundamental valuation.
+- Strongest technical trend.
+- Best liquidity.
+
+11.3 Opportunity Classification
+
+Classify opportunities as:
+
+- Immediate Opportunity.
+- Near Entry.
+- Waiting for Confirmation.
+- Watchlist.
+- Avoid.
+
+Explain why each stock belongs to its category.
+
+PART 12: MARKET AND SECTOR INTELLIGENCE
+
+Create a dedicated market overview page.
+
+Display:
+
+- EGX30.
+- EGX70.
+- EGX100.
+- Daily index performance.
+- Total market value traded.
+- Total market volume.
+- Advancing stocks.
+- Declining stocks.
+- Unchanged stocks.
+- Sector performance.
+- Market breadth.
+- Liquidity conditions.
+
+Analyze the overall market environment.
+
+Classify it as:
+
+- Strong Bullish.
+- Bullish.
+- Neutral.
+- Bearish.
+- Strong Bearish.
+
+Use this market assessment as an input to individual stock recommendations.
+
+Do not assume that a stock is a good purchase merely because its individual chart is bullish when broader market conditions are deteriorating.
+
+PART 13: DETAILED STOCK ANALYSIS PAGE
+
+Build a complete analysis page for every stock.
+
+The page must contain:
+
+A. Quick Decision Summary
+
+Display at the top:
+
+- Company name.
+- Ticker.
+- Current price.
+- Daily change.
+- Final recommendation.
+- Current trend.
+- Expected trend.
+- Evaluation score.
+- Confidence score.
+- Last data update.
+
+B. Trading Plan
+
+Display clearly:
+
+- Preferred entry zone.
+- Alternative entry.
+- Stop loss.
+- Target 1.
+- Target 2.
+- Target 3.
+- Reward/risk.
+- Expected holding period.
+
+C. Interactive Chart
+
+Provide:
+
+- Candlestick chart.
+- Volume bars.
+- Moving averages.
+- RSI.
+- MACD.
+- Support and resistance.
+- Entry levels.
+- Stop-loss level.
+- Target levels.
+
+Allow daily, weekly, and monthly timeframes.
+
+D. Technical Analysis
+
+Show indicator values and interpretation.
+
+E. Fundamental Analysis
+
+Show financial ratios, financial trends, and company performance.
+
+F. Fair Value
+
+Show valuation results and assumptions.
+
+G. News and Disclosures
+
+Show relevant news, dates, source links, and AI impact analysis.
+
+H. Competitor Comparison
+
+Compare the selected stock with relevant companies in the same sector.
+
+I. AI Final Report
+
+Generate a comprehensive Arabic investment report.
+
+The report must conclude with one clear answer:
+
+Should I BUY, WAIT, HOLD, REDUCE, SELL, or AVOID this stock now, and why?
+
+PART 14: PORTFOLIO MANAGEMENT
+
+Create a personal investment portfolio module.
+
+Allow users to:
+
+- Add stocks.
+- Enter quantities.
+- Enter purchase prices.
+- Record purchase dates.
+- Add multiple purchases.
+- Calculate average cost.
+- Track market value.
+- Calculate unrealized profit and loss.
+- Calculate realized profit and loss.
+- Include cash dividends when available.
+- Track total return.
+- Compare purchase price with fair value.
+
+14.1 AI Portfolio Analyst
+
+Analyze the user's actual holdings.
+
+For every holding, recommend:
+
+- HOLD.
+- ADD.
+- REDUCE.
+- EXIT.
+
+The analysis must consider the user's purchase price, portfolio exposure, stock fundamentals, technical conditions, and current market price.
+
+Avoid recommending additional purchases simply because the stock price has fallen.
+
+PART 15: HISTORICAL RECOMMENDATION TRACKING
+
+Build a permanent recommendation history.
+
+For each recommendation save:
+
+- Stock ticker.
+- Company name.
+- Recommendation date.
+- Recommendation time.
+- Price at recommendation.
+- Entry range.
+- Stop loss.
+- Targets.
+- Fair value.
+- Score.
+- Confidence.
+- Sources.
+- Data timestamps.
+- AI reasoning.
+- Recommendation status.
+- Actual subsequent performance.
+
+Never rewrite previous recommendations to make past predictions appear more accurate.
+
+15.1 Performance Evaluation
+
+Calculate:
+
+- Recommendation success rate.
+- Average return.
+- Average winning trade.
+- Average losing trade.
+- Profit factor.
+- Maximum drawdown.
+- Target achievement rate.
+- Stop-loss frequency.
+- Average holding period.
+- Performance by recommendation category.
+- Performance by sector.
+- Performance by market condition.
+
+Use realistic trading costs, commissions, slippage, and execution assumptions.
+
+Distinguish between a target being touched and an executable trade actually achieving the target.
+
+PART 16: BACKTESTING ENGINE
+
+Build a historical testing system.
+
+Allow testing:
+
+- Technical strategies.
+- Fundamental filters.
+- Combined strategies.
+- AI-generated decision rules.
+- Entry and exit methods.
+
+The engine must:
+
+- Use historical data only.
+- Avoid future data leakage.
+- Avoid look-ahead bias.
+- Account for transaction costs.
+- Account for trading suspensions where data is available.
+- Account for liquidity constraints.
+- Distinguish adjusted and unadjusted prices.
+- Report sample size.
+- Report performance across different market conditions.
+
+Provide out-of-sample testing where possible.
+
+Do not claim that backtesting guarantees future performance.
+
+PART 17: WATCHLIST AND SMART ALERTS
+
+Create a personal watchlist.
+
+Allow users to add and remove stocks.
+
+Generate alerts when:
+
+- A stock enters its preferred entry zone.
+- A resistance level is broken.
+- A support level is broken.
+- Unusual volume appears.
+- A stop-loss level is approached.
+- A target is achieved.
+- A major disclosure is published.
+- New earnings are announced.
+- The AI recommendation changes.
+- The trend changes.
+
+Alerts must be based on actual data and must include the trigger price and timestamp.
+
+PART 18: DATABASE AND SYSTEM ARCHITECTURE
+
+Use a professional modular architecture.
+
+Suggested components:
+
+1. Market Data Service.
+2. Source Intelligence Service.
+3. Stock Universe Service.
+4. Data Validation Service.
+5. Technical Analysis Engine.
+6. Fundamental Analysis Engine.
+7. Fair Value Engine.
+8. News Intelligence Engine.
+9. AI Recommendation Engine.
+10. Risk Management Engine.
+11. Stock Screener.
+12. Portfolio Service.
+13. Recommendation History.
+14. Backtesting Engine.
+15. Alert Service.
+16. Dashboard and User Interface.
+
+18.1 Database Structure
+
+Create appropriate database tables for:
+
+- Stocks.
+- Stock symbols.
+- Data providers.
+- Raw market data.
+- Normalized market data.
+- Financial statements.
+- Financial ratios.
+- News.
+- Official disclosures.
+- Technical indicators.
+- Fair value calculations.
+- AI analysis results.
+- Recommendations.
+- Recommendation performance.
+- Portfolios.
+- Portfolio transactions.
+- Watchlists.
+- Alerts.
+- User settings.
+- Source reliability history.
+- System logs.
+
+Store historical snapshots so previous analysis can be reproduced.
+
+18.2 Security
+
+- Protect API keys.
+- Use environment secrets.
+- Validate all external inputs.
+- Secure database access.
+- Protect user accounts.
+- Do not expose private financial information.
+- Implement suitable authentication and authorization.
+- Do not place secrets in frontend code.
+
+PART 19: USER INTERFACE AND DESIGN
+
+Create a professional financial terminal interface inspired by leading stock analysis platforms.
+
+Design Requirements
+
+- Arabic interface by default.
+- Full RTL support.
+- Responsive mobile layout.
+- Professional dark theme.
+- Optional light theme.
+- Clear financial typography.
+- Interactive charts.
+- Searchable stock tables.
+- Fast navigation.
+- Clear positive and negative visual indicators.
+- Avoid unnecessary visual clutter.
+
+Main Navigation
+
+1. Dashboard.
+2. Egyptian Market.
+3. AI Stock Screener.
+4. Stock Analysis.
+5. News and Disclosures.
+6. Sector Analysis.
+7. Portfolio.
+8. Watchlist.
+9. Recommendation History.
+10. Backtesting.
+11. Data Sources and Quality.
+12. Settings.
+
+The user must be able to search for any supported Egyptian stock and access its full analysis quickly.
+
+PART 20: AI MODEL AND ANALYSIS GOVERNANCE
+
+Use an available and suitable AI model to understand financial information, summarize news, evaluate scenarios, and explain the final investment decision.
+
+The AI must not invent financial facts.
+
+Separate deterministic calculations from AI reasoning.
+
+Deterministic calculations
+
+Use code to calculate:
+
+- Technical indicators.
+- Financial ratios.
+- Valuation models.
+- Entry levels.
+- Stop losses.
+- Targets.
+- Reward/risk.
+- Portfolio performance.
+- Backtesting results.
+
+AI responsibilities
+
+Use AI to:
+
+- Read and understand verified information.
+- Summarize company news.
+- Identify relationships between events and stock performance.
+- Interpret technical and financial results.
+- Compare positive and negative factors.
+- Evaluate scenarios.
+- Explain the recommendation.
+- Produce the final Arabic report.
+
+The AI must receive structured, timestamped information with source references.
+
+Do not allow the AI to generate unsupported prices or technical indicator values.
+
+Require structured outputs that are validated before being displayed.
+
+If the AI output is incomplete, inconsistent, or invalid, reject it and retry safely or display an analysis error.
+
+PART 21: DATA QUALITY AND RELIABILITY DASHBOARD
+
+Build a separate page to monitor the entire data infrastructure.
+
+Display:
+
+- Connected providers.
+- Failed providers.
+- Last successful update.
+- Latest available market session.
+- Data completeness percentage.
+- Price discrepancies.
+- Missing financial statements.
+- News availability.
+- API usage and rate limits.
+- Source reliability scores.
+- Background job status.
+- Last successful analysis.
+
+Provide an individual data quality assessment for each stock.
+
+Do not allow incomplete or stale data to produce a misleading high-confidence recommendation.
+
+PART 22: PERFORMANCE AND AUTOMATION
+
+The application must use:
+
+- Efficient data caching.
+- Incremental data updates.
+- Background jobs.
+- Automatic retries.
+- Rate limiting.
+- Database indexing.
+- Efficient chart loading.
+- Error monitoring.
+- Scheduled market scans.
+
+Avoid downloading all historical data on every page visit.
+
+Perform scheduled tasks according to the trading calendar and provider limitations.
+
+Use persistent background scheduling supported by the selected deployment environment.
+
+If the deployment environment cannot guarantee continuous background execution, implement a compatible external scheduler or clearly report the limitation.
+
+PART 23: FINAL ACCEPTANCE TESTS
+
+Before declaring the application complete, run actual integration tests.
+
+Use representative Egyptian stocks, including:
+
+- COMI.
+- TMGH.
+- SWDY.
+
+Also test additional stocks from different sectors.
+
+Verify:
+
+1. Stock identification.
+2. Correct ticker mapping.
+3. Historical market data retrieval.
+4. Data source comparison.
+5. Data quality evaluation.
+6. News collection.
+7. Official disclosure retrieval.
+8. Financial statement extraction.
+9. Technical indicator calculations.
+10. Multi-timeframe analysis.
+11. Fundamental analysis.
+12. Fair value calculations.
+13. AI reasoning.
+14. Recommendation generation.
+15. Entry and exit levels.
+16. Stop-loss calculations.
+17. Risk/reward calculations.
+18. Recommendation storage.
+19. Historical tracking.
+20. Screener functionality.
+21. Portfolio calculations.
+22. Automatic data updates.
+23. Mobile responsiveness.
+24. Database persistence.
+25. Error handling.
+
+Tests must use real retrieved data where available.
+
+Clearly distinguish successful tests from tests blocked by missing provider access, API credentials, or unavailable data.
+
+Do not fabricate successful test results.
+
+PART 24: DEVELOPMENT EXECUTION INSTRUCTIONS
+
+You are responsible for implementing this complete application.
+
+Do not stop after generating a project plan or visual prototype.
+
+Do not create fake buttons or placeholder analysis results that look operational.
+
+Build the real backend, database, data services, analysis engines, AI integration, and frontend.
+
+Use an incremental implementation process internally:
+
+Phase 1: Project architecture and database.
+
+Phase 2: Egyptian stock universe and data providers.
+
+Phase 3: Source comparison and data validation.
+
+Phase 4: Technical analysis.
+
+Phase 5: Fundamental analysis.
+
+Phase 6: Fair value engine.
+
+Phase 7: News and disclosure intelligence.
+
+Phase 8: AI recommendation engine.
+
+Phase 9: Screener and market overview.
+
+Phase 10: Portfolio and watchlist.
+
+Phase 11: Recommendation tracking and backtesting.
+
+Phase 12: Final integration, testing, and deployment.
+
+Do not ask me to approve every small technical decision.
+
+Choose sensible professional defaults and implement the best solution.
+
+When a provider requires an API key, create a secure configuration field and explain exactly which credential is needed.
+
+Prioritize free and accessible data sources, but do not compromise data integrity.
+
+If a feature cannot be completed because an external provider does not offer accessible data, implement the appropriate adapter and clearly document the missing dependency.
+
+Maintain a clear record of completed and incomplete features.
+
+Do not declare completion until the actual acceptance tests have been performed.
+
+FINAL PROJECT OBJECTIVE
+
+The final product must operate as an intelligent Egyptian stock market analyst.
+
+When I open the application and select any Egyptian stock, the system must automatically:
+
+1. Search available data sources.
+2. Retrieve and compare the latest reliable information.
+3. Read company news and official disclosures.
+4. Analyze historical prices and trading volume.
+5. Calculate technical indicators.
+6. Analyze financial statements and business performance.
+7. Estimate fair value.
+8. Understand the current market and sector conditions.
+9. Evaluate risks and possible scenarios.
+10. Generate one clear AI investment recommendation.
+
+The final report must tell me:
+
+- BUY, WAIT, HOLD, REDUCE, SELL, or AVOID.
+- Current price.
+- Best entry zone.
+- Alternative entry.
+- Stop loss.
+- First, second, and third targets.
+- Fair value.
+- Current trend.
+- Expected trend over 1 week to 1 month.
+- Risk level.
+- Reward/risk ratio.
+- Recommendation score.
+- Confidence score.
+- Positive factors.
+- Negative factors.
+- News and disclosures affecting the stock.
+- Detailed reasons behind the decision.
+- Data sources and last update times.
+
+The system must be transparent, evidence-based, automated, scalable, and specialized in the Egyptian Exchange.
+
+The ultimate goal is to build a professional investment decision platform that helps identify the best available opportunities in the Egyptian stock market and supports decisions with verifiable financial and technical evidence.
+
+Do not build a demonstration. Build the actual product.

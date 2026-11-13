@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix EGX AI Analyst - منصة المحلل الذكي للبورصة المصرية",
+  "description": "منصة التحليل المالي الذكي واتخاذ قرارات الاستثمار والتداول المتأرجح في البورصة المصرية بالذكاء الاصطناعي والتتبع اللحظي ومصادر البيانات الموثوقة",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
