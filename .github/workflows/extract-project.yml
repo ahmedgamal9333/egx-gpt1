@@ -1,51 +1,40 @@
 name: Extract Project Archive
-
-on:
+'on':
   workflow_dispatch:
-
 permissions:
   contents: write
-
 jobs:
   extract:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Extract project archive safely
+      - name: Safely extract project archive
+        shell: bash
         run: |
-          python3 -c "
-import zipfile, os, sys
-from pathlib import Path
-
-archive = 'EGX_AI_Analyst_reviewed_safety_patch.zip'
-try:
-    with zipfile.ZipFile(archive, 'r') as zf:
-        for member in zf.namelist():
-            dest = Path('.').resolve() / member
-            dest = dest.resolve()
- repo_root = Path('.').resolve()
-            if dest != repo_root and not str(dest).startswith(str(repo_root) + os.sep):
-                print(f'Rejecting path traversal: {member}')
-                sys.exit(1)
-        for member in zf.namelist():
- zf.extract(member, Path('.').resolve())
-    print('Extraction successful.')
-except Exception as e:
-    print(f'Extraction failed: {e}')
-    sys.exit(1)
-"
-      - name: Stage extracted files
+          python3 - &lt;&lt;'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          root = Path.cwd().resolve()
+          archive = root / 'EGX_AI_Analyst_reviewed_safety_patch.zip'
+          if not archive.is_file():
+              raise SystemExit('Project ZIP not found')
+          with ZipFile(archive) as zf:
+              for info in zf.infolist():
+                  target = (root / info.filename).resolve()
+                  if target != root and root not in target.parents:
+                      raise SystemExit(f'Unsafe archive path: {info.filename}')
+              zf.extractall(root)
+              print(f'Extracted {len(zf.infolist())} archive entries')
+          PY
+      - name: Commit extracted files
         run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-      - name: Commit and push if changed
-        run: |
-          git config user.name "github-actions bot"
-          git config user.email "actions@github.com"
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo 'No extracted changes to commit'
           else
-            git commit -m "Extract project archive"
+            git commit -m 'Extract EGX AI Analyst project files'
             git push
           fi
