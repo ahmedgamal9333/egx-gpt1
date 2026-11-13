@@ -1,0 +1,38 @@
+name: Repair Vercel API Function
+on: workflow_dispatch
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: vercel-api-fix
+      - name: Repair Vercel API
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > api/[...path].ts > api/[...path].ts 'import { createServerlessApp } from '\''..\/server'\'';
+
+let appPromise: any;
+
+export default async function handler(req: a y, res: a y) {
+ try {
+    appPromise ||= createServerlessApp();
+    const app = await appPromise;
+ return app(req, res);
+  } catch (error: a y) {
+ console.error('\''Vercel API initialization failed:' '', error);
+    return res.status(500).json({ error: '\''API initialization failed' '' });
+  }
+}'
+ rm -f api/api/[...path].ts
+ git config user.name "bot"
+ git config user.email "bot@github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+ git commit -m "Repair Vercel API"
+            git push origin vercel-api-fix
+          fi
