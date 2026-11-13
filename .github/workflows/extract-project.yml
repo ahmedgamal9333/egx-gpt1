@@ -12,23 +12,18 @@ jobs:
       - name: Safely extract project archive
         shell: bash
         run: |
-          python3 - &lt;&lt;'PY'
-          from pathlib import Path
-          from zipfile import ZipFile
-          root = Path.cwd().resolve()
-          archive = root / 'EGX_AI_Analyst_reviewed_safety_patch.zip'
-          if not archive.is_file():
-              raise SystemExit('Project ZIP not found')
-          with ZipFile(archive) as zf:
-              for info in zf.infolist():
-                  target = (root / info.filename).resolve()
-                  if target != root and root not in target.parents:
-                      raise SystemExit(f'Unsafe archive path: {info.filename}')
-              zf.extractall(root)
-              print(f'Extracted {len(zf.infolist())} archive entries')
-          PY
+          set -euo pipefail
+          archive='EGX_AI_Analyst_reviewed_safety_patch.zip'
+          test -f "$archive"
+          if unzip -Z1 "$archive" | grep -E '(^/|(^|/)\.\.(/|$))'; then
+            echo 'Unsafe path found in ZIP archive'
+            exit 1
+          fi
+          unzip -o "$archive" -d .
       - name: Commit extracted files
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
