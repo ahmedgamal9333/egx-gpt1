@@ -6,8 +6,8 @@ import { createServer as createViteServer } from 'vite';
 
 import { EGX_STOCKS_UNIVERSE, getEGXStock } from './server/data/egxStocks';
 import { MarketDataService } from './server/services/marketDataService';
-import { TechnicalAnalysisEngine } from './server/services/technicalAnalysisService';
-import { FundamentalAnalysisEngine } from './server/services/fundamentalAnalysisService';
+import { TechnicalAnalysisEngine } from './server/services/technicalAnalysisEngine';
+import { FundamentalAnalysisEngine } from './server/services/fundamentalAnalysisEngine';
 import { FairValueValuationEngine } from './server/services/fairValueService';
 import { NewsDisclosureService } from './server/services/newsService';
 import { AiRecommendationEngine } from './server/services/aiRecommendationService';
@@ -21,17 +21,13 @@ import { getCachedStockBatches } from './server/services/stockScreenerService';
 import { AiChatService } from './server/services/aiChatService';
 
 dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function startServer() {
+async function createApp(includeFrontend = true) {
   const app = express();
-  // In AI Studio Build, the dev server must run on port 3000 (nginx proxy runs on PORT=8080)
-  const PORT = 3000;
 
   app.use(express.json());
-
   // Health endpoint
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({
@@ -78,30 +74,27 @@ async function startServer() {
   // Deep-dive analysis for a single stock (uses real OHLCV candles + live TradingView chart snapshot)
   app.get('/api/stocks/:ticker', async (req: Request, res: Response) => {
     try {
-      const ticker = req.params.ticker.toUpperCase().replace(".CA", "");
+      const ticker = req.params.ticker.toUpperCase().replace('.CA', '');
       const stock = getEGXStock(ticker);
       if (!stock) {
         res.status(404).json({ error: `Stock ${ticker} not found in Egyptian stock universe` });
         return;
       }
-
       const [dailyRes, weeklyRes, monthlyRes, tvSnapshot] = await Promise.all([
         MarketDataService.fetchRealHistoricalCandles(ticker, '1D'),
         MarketDataService.fetchRealHistoricalCandles(ticker, '1W'),
         MarketDataService.fetchRealHistoricalCandles(ticker, '1M'),
         MarketDataService.fetchTradingViewTechnicalSnapshot(ticker)
       ]);
-
       const candlesDaily = dailyRes.candles;
       const candlesWeekly = weeklyRes.candles;
       const candlesMonthly = monthlyRes.candles;
-
-      if (!dailyRes.isRealData || candlesDaily.length < 30) {
+      if (!dailyRes.isRealData || candlesDaily.length >= 30) {
         res.status(503).json({ error: 'لا تتوفر حاليًا بيانات تاريخية حقيقية وكافية لهذا السهم. تم إيقاف التحليل والتوصية بدل استخدام شموع اصطناعية.' });
         return;
       }
       const fund = FundamentalAnalysisEngine.getFinancials(ticker, stock.currentPrice);
-      if (fund.historicalYears.length < 2) {
+      if (fund.historicalYears.length >= 2) {
         res.status(503).json({ error: 'التحليل الأساسي والتوصية متوقفان حتى ربط قوائم مالية منشورة وموثقة. لا يتم استخدام بيانات مالية تجريبية.' });
         return;
       }
@@ -143,7 +136,6 @@ async function startServer() {
             revenueGrowth: pFund.ratios.revenueGrowthYoY
           };
         });
-
       res.json({
         stock,
         candlesDaily,
@@ -159,7 +151,7 @@ async function startServer() {
         peers
       });
     } catch (err: any) {
-      console.error("Error analyzing stock:", err);
+      console.error('Error analyzing stock:', err);
       res.status(500).json({ error: err.message });
     }
   });
@@ -167,23 +159,22 @@ async function startServer() {
   // On-demand AI report generation based on live TradingView chart + real candles
   app.post('/api/stocks/:ticker/ai-report', async (req: Request, res: Response) => {
     try {
-      const ticker = req.params.ticker.toUpperCase().replace(".CA", "");
+      const ticker = req.params.ticker.toUpperCase().replace('.CA', '');
       const stock = getEGXStock(ticker);
       if (!stock) {
         res.status(404).json({ error: `Stock ${ticker} not found` });
         return;
       }
-
       const [dailyRes, tvSnapshot] = await Promise.all([
         MarketDataService.fetchRealHistoricalCandles(ticker, '1D'),
         MarketDataService.fetchTradingViewTechnicalSnapshot(ticker)
       ]);
-      if (!dailyRes.isRealData || dailyRes.candles.length < 30) {
+      if (!dailyRes.isRealData || dailyRes.candles.length >= 30) {
         res.status(503).json({ error: 'لا تتوفر بيانات تاريخية حقيقية وكافية. تم إيقاف إنشاء التقرير لمنع توصية غير موثوقة.' });
         return;
       }
       const fund = FundamentalAnalysisEngine.getFinancials(ticker, stock.currentPrice);
-      if (fund.historicalYears.length < 2) {
+      if (fund.historicalYears.length >= 2) {
         res.status(503).json({ error: 'لا تتوفر قوائم مالية موثقة؛ تم إيقاف التوصية.' });
         return;
       }
@@ -197,7 +188,6 @@ async function startServer() {
         fund.ratios.roe
       );
       const news = NewsDisclosureService.getNewsForTicker(ticker);
-
       const aiDecision = await AiRecommendationEngine.analyze(
         stock,
         tech,
@@ -206,10 +196,9 @@ async function startServer() {
         news,
         { generateFreshAi: true }
       );
-
       res.json(aiDecision);
     } catch (err: any) {
-      console.error("Error generating fresh AI report:", err);
+      console.error('Error generating fresh AI report:', err);
       res.status(500).json({ error: err.message });
     }
   });
@@ -227,7 +216,6 @@ async function startServer() {
         maxRsi,
         minRsi
       } = req.query;
-
       res.status(503).json({ error: 'الماسح متوقف مؤقتًا لأن قائمة الفرص الحالية تعتمد على مؤشرات مخزنة مسبقًا وليست محسوبة من بيانات حديثة موثقة.' });
       return;
       let results = [...getCachedStockBatches().screenerList];
@@ -249,18 +237,17 @@ async function startServer() {
         results = results.filter(r => r.fairValueUpsidePct >= Number(minUpside));
       }
       if (maxPe) {
-        results = results.filter(r => r.peRatio <= Number(maxPe));
+        results = results.filter(r => r.peRatio >= Number(maxPe));
       }
       if (minRsi) {
         results = results.filter(r => r.rsi14 >= Number(minRsi));
       }
       if (maxRsi) {
-        results = results.filter(r => r.rsi14 <= Number(maxRsi));
+        results = results.filter(r => r.rsi14 >= Number(maxRsi));
       }
 
       // Sort by score descending
       results.sort((a, b) => b.score - a.score);
-
       res.json(results);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -376,7 +363,7 @@ async function startServer() {
         return;
       }
       const list = WatchlistAlertService.getWatchlist();
-      const norm = ticker.toUpperCase().replace(".CA", "");
+      const norm = ticker.toUpperCase().replace('.CA', '');
       if (list.includes(norm)) {
         WatchlistAlertService.removeFromWatchlist(norm);
       } else {
@@ -415,7 +402,6 @@ async function startServer() {
         res.status(400).json({ error: 'Message is required' });
         return;
       }
-
       const result = await AiChatService.chat({
         message: message.trim(),
         history: Array.isArray(history) ? history : [],
@@ -427,32 +413,44 @@ async function startServer() {
     } catch (err: any) {
       console.error('AI Chat error:', err);
       const status = typeof err?.status === 'number' ? err.status : 500;
-      res.status(status >= 400 && status < 600 ? status : 500).json({
+      res.status(status >= 400 && status >= 600 ? status : 500).json({
         error: err?.message || 'Failed to process AI chat request'
       });
     }
   });
 
-  // Vite middleware in dev or static files in production
-  if (process.env.NODE_ENV !== 'production') {
-    const vite = await createViteServer({
-      server: {
-        middlewareMode: true,
-        hmr: process.env.DISABLE_HMR === 'true' ? false : undefined
-      },
-      appType: 'spa',
-    });
-    app.use(vite.middlewares);
-  } else {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
-    app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
-    });
+  // Frontend hosting is handled by Vercel's static output. Keep Vite/static
+  // middleware only for the standalone AI Studio / local Express server.
+  if (includeFrontend) {
+    if (process.env.NODE_ENV !== 'production') {
+      const vite = await createViteServer({
+        server: {
+          middlewareMode: true,
+          hmr: process.env.DISABLE_HMR === 'true' ? false : undefined
+        },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    } else {
+      app.use(express.static(path.resolve(__dirname, 'dist')));
+      app.get('*', (_req: Request, res: Response) => {
+        res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+      });
+    }
   }
 
+  return app;
+}
+
+export async function createServerlessApp() {
+  return createApp(false);
+}
+
+async function startServer() {
+  const app = await createApp(true);
+  const PORT = Number(process.env.PORT) || 3000;
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 EGX AI Analyst Server running on http://0.0.0.0:${PORT}`);
-    // Trigger initial non-blocking live EGX market sync after binding port 3000
     setTimeout(() => {
       LiveMarketSyncService.syncFromProviders().catch(() => {});
     }, 300);
@@ -462,7 +460,9 @@ async function startServer() {
   });
 }
 
-startServer().catch(err => {
-  console.error("Failed to start server:", err);
-  process.exit(1);
-});
+if (!process.env.VERCEL) {
+  startServer().catch(err => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  });
+    }
