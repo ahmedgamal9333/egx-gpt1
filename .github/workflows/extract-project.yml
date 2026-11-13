@@ -1,0 +1,46 @@
+name: Extract Project Archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract project archive
+        run: |
+          python3 -c "
+import zipfile, os, sys
+
+archive = 'EGX_AI_Analyst_reviewed_safety_patch.zip'
+try:
+    with zipfile.ZipFile(archive, 'r') as zf:
+        for member in zf.namelist():
+            # Reject path traversal
+            if '..' in member or member.startswith('/'):
+                print(f'Rejecting path traversal: {member}')
+                sys.exit(1)
+            zf.extract(member, '/')
+    print('Extraction successful.')
+except Exception as e:
+    print(f'Extraction failed: {e}')
+    sys.exit(1)
+"
+
+      - name: Stage extracted files
+        run: git add -A
+
+      - name: Commit and push if changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --cached --quiet; then
+            git commit -m "Extract uploaded project archive"
+            git push
+          fi
