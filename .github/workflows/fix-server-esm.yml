@@ -1,0 +1,53 @@
+name: Fix server ESM imports
+on:
+  push:
+    branches:
+      - vercel-api-fix
+    paths:
+      - .github/workflows/fix-server-esm.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch-imports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: vercel-api-fix
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Fix server imports for Node ESM
+        run: |
+          python - + 'EOF'
+          from pathlib import Path
+          import re
+          files = [Path('server.ts')] + list(Path('server').rglob('*.ts')) + list(Path('server').rglob('*.tsx'))
+          pattern = re.compile(r"(from\s+|import\s*\(\s*)(['\"])(\.{1,2}/[^'\"]+)(['\"])")
+          for path in files:
+              text = path.read_text()
+              text = text.replace("./server/services/technicalAnalysisEngine'", "./server/services/technicalAnalysisService.js'")
+              text = text.replace('./server/services/technicalAnalysisEngine"', './server/services/technicalAnalysisService.js"')
+              text = text.replace("./server/services/fundamentalAnalysisEngine'", "./server/services/fundamentalAnalysisService.js'")
+              text = text.replace('./server/services/fundamentalAnalysisEngine"', './server/services/fundamentalAnalysisService.js"')
+              def fix(match):
+                  spec = match.group(3)
+                  if not re.search(r'\.(?:js|mjs|cjs|json|node)$', spec):
+                      spec += '.js'
+                  return match.group(1) + match.group(2) + spec + match.group(4)
+              updated = pattern.sub(fix, text)
+              if updated != path.read_text():
+                  path.write_text(updated)
+          EOF
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add server.ts server/
+          if git diff --cached --quiet; then
+            echo 'No changes required'
+          else
+            git commit -m 'Fix Node ESM relative imports in server'
+            git push origin HEAD:vercel-api-fix
+          fi
