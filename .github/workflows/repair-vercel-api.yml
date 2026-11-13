@@ -1,5 +1,7 @@
 name: Repair Vercel API Function
-on: workflow_dispatch
+'on':
+  workflow_dispatch:
+
 permissions:
   contents: write
 
@@ -7,32 +9,39 @@ jobs:
   repair:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
         with:
           ref: vercel-api-fix
-      - name: Repair Vercel API
+      - name: Write valid catch-all API and remove nested duplicate
         shell: bash
         run: |
           set -euo pipefail
-          cat > api/[...path].ts > api/[...path].ts 'import { createServerlessApp } from '\''..\/server'\'';
+          mkdir -p api
+          cat > 'api/[...path].ts' &lt;&lt;'EOF'
+          import { createServerlessApp } from '../server';
 
-let appPromise: any;
+          let appPromise: any;
 
-export default async function handler(req: a y, res: a y) {
- try {
-    appPromise ||= createServerlessApp();
-    const app = await appPromise;
- return app(req, res);
-  } catch (error: a y) {
- console.error('\''Vercel API initialization failed:' '', error);
-    return res.status(500).json({ error: '\''API initialization failed' '' });
-  }
-}'
- rm -f api/api/[...path].ts
- git config user.name "bot"
- git config user.email "bot@github.com"
+          export default async function handler(req: any, res: any) {
+            try {
+              appPromise ||= createServerlessApp();
+              const app = await appPromise;
+              return app(req, res);
+            } catch (error: any) {
+              console.error('Vercel API initialization failed:', error);
+              return res.status(500).json({ error: 'API initialization failed' });
+            }
+          }
+          EOF
+          rm -f 'api/api/[...path].ts'
+          rmdir api/api 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          if ! git diff --cached --quiet; then
- git commit -m "Repair Vercel API"
-            git push origin vercel-api-fix
+          if git diff --cached --quiet; then
+            echo 'No repair changes needed'
+          else
+            git commit -m 'Repair Vercel catch-all API handler'
+            git push origin HEAD:vercel-api-fix
           fi
