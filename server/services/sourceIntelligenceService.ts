@@ -1,5 +1,6 @@
-import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks.js';
+import { EGX_STOCKS_UNIVERSE } from '../data/egxStocks.js';
 import { LiveMarketSyncService } from './liveMarketSyncService.js';
+import { getEgidFeedStatus } from './egidMarketDataService.js';
 
 export interface DataSourceProvider {
   id: string;
@@ -8,7 +9,7 @@ export interface DataSourceProvider {
   category: 'PRICES' | 'OFFICIAL' | 'NEWS' | 'MACRO';
   status: 'ONLINE' | 'DELAYED_15M' | 'STANDBY';
   statusAr: string;
-  reliabilityScore: number; // 0 to 100
+  reliabilityScore: number;
   latencyMs: number;
   lastSuccessfulUpdate: string;
   updateFrequencyAr: string;
@@ -43,50 +44,64 @@ export interface SystemSourcesReport {
 export class SourceIntelligenceService {
   public static getReport(): SystemSourcesReport {
     const live = LiveMarketSyncService.getLiveState();
-    const sessionDate = LiveMarketSyncService.getLatestEgxSessionDate();
-    const syncTimeDisplay = live.lastSyncedAt ? live.lastSyncedAt.replace('T', ' ').substring(0, 16) : '';
+    const egid = getEgidFeedStatus();
+    const connected = egid.status === 'CONNECTED';
+    const coveragePct = egid.directoryCount > 0
+      ? Number(((egid.quoteCount / egid.directoryCount) * 100).toFixed(1))
+      : 0;
+
     const providers: DataSourceProvider[] = [
       {
-        id: 'src-tradingview', nameAr: 'TradingView Scanner (مصدر غير رسمي)',
-        nameEn: 'TradingView public scanner endpoint', category: 'PRICES',
-        status: live.tradingViewOnline ? 'ONLINE' : 'STANDBY',
-        statusAr: live.tradingViewOnline ? 'تم استلام بيانات من المصدر؛ لم يتم التحقق المستقل منها' : 'غير متصل أو لم يتم استلام بيانات حديثة',
-        reliabilityScore: live.tradingViewOnline ? 50 : 0,
-        latencyMs: live.tradingViewOnline ? live.tradingViewLatencyMs : 0,
-        lastSuccessfulUpdate: live.tradingViewOnline ? syncTimeDisplay : '',
-        updateFrequencyAr: 'محاولة مزامنة كل 5 دقائق؛ التغطية والتأخير غير مضمونين',
-        coveragePct: 0, discrepanciesCount: 0, isOfficialSource: false
+        id: 'src-egid',
+        nameAr: 'الشركة المصرية لنشر المعلومات (EGID)',
+        nameEn: 'EGID — EGX authorized data provider',
+        category: 'PRICES',
+        status: connected ? 'DELAYED_15M' : 'STANDBY',
+        statusAr: connected ? 'متصل — أسعار متأخرة مع توقيت آخر صفقة' : 'لم يتم جلب بيانات بعد',
+        reliabilityScore: connected ? 95 : 0,
+        latencyMs: 0,
+        lastSuccessfulUpdate: egid.cachedAt || '',
+        updateFrequencyAr: 'تحديث تلقائي كل 3 دقائق عند طلب البيانات',
+        coveragePct,
+        discrepanciesCount: 0,
+        isOfficialSource: true
       },
       ...[
         ['src-egx', 'البورصة المصرية (EGX)', 'Egyptian Exchange', 'OFFICIAL'],
+        ['src-directfn', 'DirectFN', 'DirectFN delayed market data', 'PRICES'],
         ['src-mubasher', 'مباشر', 'Mubasher', 'PRICES'],
-        ['src-investing', 'إنفستنج', 'Investing.com', 'PRICES'],
         ['src-yahoo', 'ياهو فاينانس', 'Yahoo Finance', 'PRICES'],
-        ['src-directfn', 'DirectFN', 'DirectFN', 'PRICES'],
         ['src-cbe', 'البنك المركزي المصري', 'Central Bank of Egypt', 'MACRO'],
         ['src-fra', 'الهيئة العامة للرقابة المالية', 'Financial Regulatory Authority', 'OFFICIAL']
       ].map(([id, nameAr, nameEn, category]) => ({
-        id, nameAr, nameEn, category: category as DataSourceProvider['category'],
+        id,
+        nameAr,
+        nameEn,
+        category: category as DataSourceProvider['category'],
         status: 'STANDBY' as const,
-        statusAr: 'غير مربوط تقنيًا - لا توجد بيانات جلب أو تحقق في هذا الإصدار',
-        reliabilityScore: 0, latencyMs: 0, lastSuccessfulUpdate: '',
-        updateFrequencyAr: 'غير متاح', coveragePct: 0, discrepanciesCount: 0,
+        statusAr: 'غير مربوط تقنيًا — لا تُعرض بيانات منه',
+        reliabilityScore: 0,
+        latencyMs: 0,
+        lastSuccessfulUpdate: '',
+        updateFrequencyAr: 'غير متاح',
+        coveragePct: 0,
+        discrepanciesCount: 0,
         isOfficialSource: category === 'OFFICIAL'
       }))
     ];
+
     return {
-      overallHealthScore: live.tradingViewOnline ? 25 : 0,
-      connectedProvidersCount: live.tradingViewOnline ? 1 : 0,
+      overallHealthScore: connected ? 55 : 0,
+      connectedProvidersCount: connected ? 1 : 0,
       totalProvidersCount: providers.length,
       activeDiscrepancies: 0,
-      averageLatencyMs: live.tradingViewOnline ? live.tradingViewLatencyMs : 0,
-      lastMarketSync: live.lastSyncedAt,
-      lastMarketSessionDate: sessionDate,
-      syncedStocksCount: live.tradingViewOnline ? live.syncedStocksCount : 0,
-      totalUniverseCount: EGX_STOCKS_UNIVERSE.length,
+      averageLatencyMs: 0,
+      lastMarketSync: egid.cachedAt || live.lastSyncedAt,
+      lastMarketSessionDate: LiveMarketSyncService.getLatestEgxSessionDate(),
+      syncedStocksCount: egid.quoteCount,
+      totalUniverseCount: egid.directoryCount || EGX_STOCKS_UNIVERSE.length,
       providers,
       recentDiscrepancyLogs: []
     };
   }
-
 }
