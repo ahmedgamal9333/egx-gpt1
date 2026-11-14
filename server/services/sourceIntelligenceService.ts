@@ -7,10 +7,10 @@ export interface DataSourceProvider {
   nameAr: string;
   nameEn: string;
   category: 'PRICES' | 'OFFICIAL' | 'NEWS' | 'MACRO';
-  status: 'ONLINE' | 'DELAYED_15M' | 'STANDBY';
+  status: 'ONLINE' | 'DELAYED' | 'STANDBY';
   statusAr: string;
-  reliabilityScore: number;
-  latencyMs: number;
+  reliabilityScore: number | null;
+  latencyMs: number | null;
   lastSuccessfulUpdate: string;
   updateFrequencyAr: string;
   coveragePct: number;
@@ -19,11 +19,11 @@ export interface DataSourceProvider {
 }
 
 export interface SystemSourcesReport {
-  overallHealthScore: number;
+  overallHealthScore: number | null;
   connectedProvidersCount: number;
   totalProvidersCount: number;
-  activeDiscrepancies: number;
-  averageLatencyMs: number;
+  activeDiscrepancies: number | null;
+  averageLatencyMs: number | null;
   lastMarketSync: string;
   lastMarketSessionDate: string;
   syncedStocksCount: number;
@@ -56,10 +56,10 @@ export class SourceIntelligenceService {
         nameAr: 'الشركة المصرية لنشر المعلومات (EGID)',
         nameEn: 'EGID — EGX authorized data provider',
         category: 'PRICES',
-        status: connected ? 'DELAYED_15M' : 'STANDBY',
+        status: connected ? 'DELAYED' : 'STANDBY',
         statusAr: connected ? 'متصل — أسعار متأخرة مع توقيت آخر صفقة' : 'لم يتم جلب بيانات بعد',
-        reliabilityScore: connected ? 95 : 0,
-        latencyMs: 0,
+        reliabilityScore: null,
+        latencyMs: null,
         lastSuccessfulUpdate: egid.cachedAt || '',
         updateFrequencyAr: 'تحديث تلقائي كل 3 دقائق عند طلب البيانات',
         coveragePct,
@@ -91,11 +91,11 @@ export class SourceIntelligenceService {
     ];
 
     return {
-      overallHealthScore: connected ? 55 : 0,
+      overallHealthScore: null,
       connectedProvidersCount: connected ? 1 : 0,
       totalProvidersCount: providers.length,
-      activeDiscrepancies: 0,
-      averageLatencyMs: 0,
+      activeDiscrepancies: null,
+      averageLatencyMs: null,
       lastMarketSync: egid.cachedAt || live.lastSyncedAt,
       lastMarketSessionDate: LiveMarketSyncService.getLatestEgxSessionDate(),
       syncedStocksCount: egid.quoteCount,
