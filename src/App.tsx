@@ -74,8 +74,11 @@ export function App() {
     setLoadingStock(true);
     setStockError(null);
     fetch(`/api/stocks/${ticker}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+      .then(async res => {
+        if (!res.ok) {
+          const payload = await res.json().catch(() => ({}));
+          throw new Error(payload?.error || `HTTP error ${res.status}`);
+        }
         return res.json();
       })
       .then(data => {
