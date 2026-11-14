@@ -43,7 +43,7 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
           </div>
           <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-sans">
             <TrendingUp className="w-3.5 h-3.5" />
-            {fmt(overview.egx30.change)} نقطة (صعود قياسي)
+            {fmt(overview.egx30.change)} نقطة (التغيير المتاح)
           </div>
         </div>
 
@@ -60,7 +60,7 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
           </div>
           <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-sans">
             <TrendingUp className="w-3.5 h-3.5" />
-            {fmt(overview.egx70.change)} نقطة (نشاط الأسهم المتوسطة)
+            {fmt(overview.egx70.change)} نقطة (التغيير المتاح)
           </div>
         </div>
 
