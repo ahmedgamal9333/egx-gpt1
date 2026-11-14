@@ -20,26 +20,33 @@ jobs:
           python-version: '3.x'
       - name: Fix server imports for Node ESM
         run: |
-          python - + 'EOF'
+          python3 - <<'PY'
           from pathlib import Path
           import re
+
           files = [Path('server.ts')] + list(Path('server').rglob('*.ts')) + list(Path('server').rglob('*.tsx'))
-          pattern = re.compile(r"(from\s+|import\s*\(\s*)(['\"])(\.{1,2}/[^'\"]+)(['\"])")
+          replacements = {
+              "./server/services/technicalAnalysisEngine": "./server/services/technicalAnalysisService",
+              "./server/services/fundamentalAnalysisEngine": "./server/services/fundamentalAnalysisService",
+          }
+
           for path in files:
-              text = path.read_text()
-              text = text.replace("./server/services/technicalAnalysisEngine'", "./server/services/technicalAnalysisService.js'")
-              text = text.replace('./server/services/technicalAnalysisEngine"', './server/services/technicalAnalysisService.js"')
-              text = text.replace("./server/services/fundamentalAnalysisEngine'", "./server/services/fundamentalAnalysisService.js'")
-              text = text.replace('./server/services/fundamentalAnalysisEngine"', './server/services/fundamentalAnalysisService.js"')
+              original = path.read_text()
+              updated = original
+              for old, new in replacements.items():
+                  updated = updated.replace(old, new)
+
+              pattern = re.compile(r"(from\\s+|import\\s*\\(\\s*)(['\\"])(\\.{1,2}/[^'\\"]+)(['\\"])")
               def fix(match):
                   spec = match.group(3)
-                  if not re.search(r'\.(?:js|mjs|cjs|json|node)$', spec):
-                      spec += '.js'
+                  if not re.search(r"\\.(?:js|mjs|cjs|json|node)$", spec):
+                      spec += ".js"
                   return match.group(1) + match.group(2) + spec + match.group(4)
-              updated = pattern.sub(fix, text)
-              if updated != path.read_text():
+
+              updated = pattern.sub(fix, updated)
+              if updated != original:
                   path.write_text(updated)
-          EOF
+          PY
       - name: Commit and push
         run: |
           git config user.name 'github-actions[bot]'
