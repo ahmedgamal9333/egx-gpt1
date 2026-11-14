@@ -35,12 +35,12 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
         if (d.sources) {
           setReport(d.sources);
         }
-        const count = d.syncResult?.syncedStocks || report?.totalUniverseCount || 260;
-        const ms = d.syncResult?.latencyMs || 150;
+        const count = d.syncResult?.syncedStocks || report?.syncedStocksCount || report?.totalUniverseCount || 0;
+        const ms = d.syncResult?.latencyMs ?? 0;
         setSyncNotice(
           lang === 'ar'
-            ? `تمت مزامنة أحدث أسعار ${count} سهماً من TradingView ومؤشرات البورصة خلال ${ms} ms.`
-            : `Synced latest prices for ${count} EGX stocks in ${ms} ms.`
+            ? `تم استلام أسعار EGID المتأخرة لعدد ${count} سهماً خلال ${ms} ms.`
+            : `Received delayed EGID quotes for ${count} EGX stocks in ${ms} ms.`
         );
         if (onMarketSynced) onMarketSynced();
         setSyncing(false);
@@ -80,8 +80,8 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
           </h1>
           <p className="text-xs text-slate-400 mt-1">
             {lang === 'ar'
-              ? `نظام متعدد المصادر يربط TradingView EGX Live مع البورصة المصرية ومباشر وInvesting.com والبنك المركزي لتغطية ${report.totalUniverseCount || 260} سهماً بتاريخ جلسة ${report.lastMarketSessionDate}.`
-              : `Multi-source verification across TradingView EGX Live, EGX Official, Mubasher, Investing.com, and CBE covering ${report.totalUniverseCount || 260} stocks.`}
+              ? `مصدر EGID المعتمد لبيانات البورصة المصرية؛ الأسعار متأخرة، ويُعرض وقت آخر صفقة لكل سهم. تغطية الدليل: ${report.totalUniverseCount || 0} ورقة مالية.`
+              : `EGID delayed market data feed. Quote timestamps are displayed; unsupported sources are not treated as connected.`}
           </p>
         </div>
 
@@ -94,7 +94,7 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
             <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin' : ''}`} />
             {syncing
               ? (lang === 'ar' ? 'جاري مزامنة السوق...' : 'Syncing Live EGX...')
-              : (lang === 'ar' ? 'مزامنة الأسعار الحية الآن' : 'Sync Live Prices Now')}
+              : (lang === 'ar' ? 'تحديث أسعار EGID المتأخرة' : 'Refresh EGID Delayed Data')}
           </button>
           <button
             onClick={fetchSources}
@@ -118,13 +118,13 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block font-sans mb-1">درجة سلامة البيانات</span>
           <span className="text-2xl font-black text-emerald-400">{report.overallHealthScore}%</span>
-          <span className="text-[10px] text-slate-500 block font-sans">موثوقية فائقة ومطابقة تامة</span>
+          <span className="text-[10px] text-slate-500 block font-sans">مزود واحد؛ لا توجد مطابقة مستقلة بعد</span>
         </div>
 
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block font-sans mb-1">المزودون المتصلون</span>
           <span className="text-2xl font-black text-white">{report.connectedProvidersCount} / {report.totalProvidersCount}</span>
-          <span className="text-[10px] text-emerald-400 block font-sans">شامل TradingView & Investing</span>
+          <span className="text-[10px] text-emerald-400 block font-sans">EGID فقط عند الاتصال</span>
         </div>
 
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
