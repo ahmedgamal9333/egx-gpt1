@@ -42,7 +42,7 @@ async function createApp(includeFrontend = true) {
   // Market overview & macro data
   app.get('/api/market/overview', (_req: Request, res: Response) => {
     try {
-      const overview = MarketDataService.getMarketOverview();
+      const overview = await MarketDataService.getMarketOverview();
       res.json(overview);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
