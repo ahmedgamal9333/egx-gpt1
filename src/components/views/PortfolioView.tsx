@@ -55,7 +55,7 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 font-mono-numbers">
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block mb-1 font-sans">{lang === 'ar' ? 'القيمة السوقية الحالية' : 'Current Market Value'}</span>
-          <span className="text-2xl font-black text-white">{portfolio.totalMarketValue.toLocaleString()} جم</span>
+          <span className="text-2xl font-black text-white">{portfolio.valuationComplete ? `${portfolio.totalMarketValue.toLocaleString()} جم` : 'تقييم جزئي — بعض الأسعار غير متاحة'}</span>
           <span className="text-[10px] text-slate-500 block mt-1 font-sans">
             {lang === 'ar' ? `التكلفة: ${portfolio.totalCost.toLocaleString()} جم` : `Cost: ${portfolio.totalCost}`}
           </span>
@@ -64,17 +64,17 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block mb-1 font-sans">{lang === 'ar' ? 'الأرباح غير المحققة (P&L)' : 'Unrealized P&L'}</span>
           <div className={`text-2xl font-black flex items-center gap-1 ${portfolio.totalUnrealizedPl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {portfolio.totalUnrealizedPl >= 0 ? '+' : ''}{portfolio.totalUnrealizedPl.toLocaleString()} جم
+            {portfolio.valuationComplete ? `${portfolio.totalUnrealizedPl >= 0 ? '+' : ''}${portfolio.totalUnrealizedPl.toLocaleString()} جم` : 'غير مكتمل — تحقق من أسعار كل المراكز'}
           </div>
           <span className={`text-xs font-bold ${portfolio.totalUnrealizedPlPct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-            ({portfolio.totalUnrealizedPlPct >= 0 ? '+' : ''}{portfolio.totalUnrealizedPlPct}%)
+            {portfolio.valuationComplete ? `(${portfolio.totalUnrealizedPlPct >= 0 ? '+' : ''}${portfolio.totalUnrealizedPlPct}%)` : ''}
           </span>
         </div>
 
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
-          <span className="text-xs text-slate-400 block mb-1 font-sans">{lang === 'ar' ? 'التوزيعات النقدية المحصلة' : 'Dividends Received'}</span>
+          <span className="text-xs text-slate-400 block mb-1 font-sans">{lang === 'ar' ? 'التوزيعات المسجلة' : 'Recorded Dividends'}</span>
           <span className="text-2xl font-black text-amber-400">{portfolio.dividendsEarned.toLocaleString()} جم</span>
-          <span className="text-[10px] text-slate-500 block mt-1 font-sans">{lang === 'ar' ? 'عوائد نقدية سنوية' : 'Annual Yield'}</span>
+          <span className="text-[10px] text-slate-500 block mt-1 font-sans">{lang === 'ar' ? 'لا توجد توزيعات مسجلة' : 'No dividends recorded'}</span>
         </div>
 
         <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl">
@@ -132,19 +132,19 @@ export const PortfolioView: React.FC<PortfolioViewProps> = ({
                   </td>
 
                   <td className="py-3 px-3 font-bold text-white">
-                    {h.currentPrice} جم
+                    {h.quoteAvailable ? `${h.currentPrice} جم` : 'غير متاح'}
                   </td>
 
                   <td className="py-3 px-3 text-slate-200">
-                    {h.currentValue.toLocaleString()} جم
+                    {h.quoteAvailable ? `${h.currentValue.toLocaleString()} جم` : 'غير متاح'}
                   </td>
 
                   <td className={`py-3 px-3 font-bold ${h.unrealizedPl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                    {h.unrealizedPl >= 0 ? '+' : ''}{h.unrealizedPl.toLocaleString()} جم ({h.unrealizedPlPct}%)
+                    {h.quoteAvailable ? `${h.unrealizedPl >= 0 ? '+' : ''}${h.unrealizedPl.toLocaleString()} جم (${h.unrealizedPlPct}%)` : 'غير متاح'}
                   </td>
 
                   <td className="py-3 px-3 text-cyan-400 font-bold">
-                    {h.allocationPct}%
+                    {h.quoteAvailable ? `${h.allocationPct}%` : 'غير متاح'}
                   </td>
 
                   <td className="py-3 px-3 font-sans">
