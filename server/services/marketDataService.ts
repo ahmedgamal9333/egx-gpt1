@@ -188,32 +188,15 @@ export class MarketDataService {
   }
 
   public static compareMultiSources(ticker: string): MultiSourceComparison {
-    const stock = getEGXStock(ticker);
-    const live = LiveMarketSyncService.getLiveState();
-    const syncedAt = stock?.lastSyncedAt || '';
-    const ageMs = syncedAt ? Date.now() - new Date(syncedAt).getTime() : Number.POSITIVE_INFINITY;
-    const verified = !!stock && live.tradingViewOnline && Number.isFinite(ageMs) && ageMs >= 0 && ageMs <= 30 * 60 * 1000 && stock.currentPrice > 0;
-    const quotes: SourcePriceQuote[] = verified ? [{
-      sourceName: 'TradingView scanner (unofficial public endpoint)',
-      price: stock!.currentPrice,
-      currency: stock!.currency,
-      timestamp: syncedAt,
-      status: 'LIVE',
-      statusAr: 'تم استلام السعر من مصدر واحد؛ لم يتم التحقق المستقل من مصادر أخرى',
-      latencyMs: live.tradingViewLatencyMs,
-      reliabilityScore: 0
-    }] : [];
     return {
-      ticker: stock?.ticker || ticker.toUpperCase(),
-      bestPrice: verified ? stock!.currentPrice : 0,
-      primarySource: verified ? 'TradingView scanner (single source; not independently verified)' : 'لا يوجد مصدر سعر موثوق متاح حاليًا',
-      quotes,
+      ticker,
+      bestPrice: 0,
+      primarySource: 'لا يوجد مصدر مستقل للتحقق',
+      quotes: [],
       hasDiscrepancy: false,
       maxDiscrepancyPct: 0,
       conflictResolved: false,
-      notesAr: verified
-        ? 'السعر وارد من مصدر واحد فقط. لا تعتبره سعرًا مؤكدًا من البورصة، ولا توجد مقارنة مستقلة متعددة المصادر.'
-        : 'لم يتم التحقق من سعر حديث من مصدر متصل. تم إيقاف المقارنة بدل تكرار سعر مخزن على أنه صادر عن عدة مزودين.'
+      notesAr: 'لم يتم ربط مصدر ثانٍ مرخص؛ لا توجد مقارنة أسعار مستقلة في الوقت الحالي.'
     };
   }
 }
