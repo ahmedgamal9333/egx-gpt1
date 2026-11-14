@@ -1,6 +1,7 @@
 import { Candle } from './technicalAnalysisService.js';
 import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks.js';
 import { LiveMarketSyncService } from './liveMarketSyncService.js';
+import { getEgidStockDirectory } from './egidMarketDataService.js';
 
 export interface SourcePriceQuote {
   sourceName: string;
@@ -25,25 +26,25 @@ export interface MultiSourceComparison {
 }
 
 export interface MarketMacroOverview {
-  egx30: { value: number; change: number; changePct: number };
-  egx70: { value: number; change: number; changePct: number };
-  egx100: { value: number; change: number; changePct: number };
-  totalTurnoverEgp: number;
-  totalVolume: number;
-  totalTrades: number;
-  advancingStocks: number;
-  decliningStocks: number;
-  unchangedStocks: number;
-  marketBreadthRatio: number;
-  marketStatusAr: 'سوق صاعد قوي (Strong Bullish)' | 'سوق صاعد متوازن (Bullish)' | 'سوق عرضي محايد (Neutral)' | 'سوق هابط حذر (Bearish)';
+  egx30: { value: number | null; change: number | null; changePct: number | null };
+  egx70: { value: number | null; change: number | null; changePct: number | null };
+  egx100: { value: number | null; change: number | null; changePct: number | null };
+  totalTurnoverEgp: number | null;
+  totalVolume: number | null;
+  totalTrades: number | null;
+  advancingStocks: number | null;
+  decliningStocks: number | null;
+  unchangedStocks: number | null;
+  marketBreadthRatio: number | null;
+  marketStatusAr: string;
   cbeData: {
-    overnightLendingRate: number;
-    overnightDepositRate: number;
-    headlineInflationRate: number;
-    coreInflationRate: number;
-    fxUsdEgpRate: number;
-    foreignReservesBillionUsd: number;
-    lastCbeMeetingDate: string;
+    overnightLendingRate: number | null;
+    overnightDepositRate: number | null;
+    headlineInflationRate: number | null;
+    coreInflationRate: number | null;
+    fxUsdEgpRate: number | null;
+    foreignReservesBillionUsd: number | null;
+    lastCbeMeetingDate: string | null;
   };
   lastMarketSessionDate: string;
   lastSyncedAt: string;
@@ -109,61 +110,58 @@ const tvSnapshotCache = new Map<string, { snapshot: TradingViewChartSnapshot; fe
 const LIVE_DATA_TTL_MS = 5 * 60 * 1000;
 
 export class MarketDataService {
-  public static getMarketOverview(): MarketMacroOverview {
-    const live = LiveMarketSyncService.getLiveState();
-    const sessionDate = LiveMarketSyncService.getLatestEgxSessionDate();
-
+  public static async getMarketOverview(): Promise<MarketMacroOverview> {
+    const [stocks] = await Promise.all([getEgidStockDirectory()]);
+    const priced = stocks.filter((stock: any) => typeof stock.currentPrice === 'number' && stock.currentPrice > 0);
     let advancing = 0;
     let declining = 0;
     let unchanged = 0;
     let totalTurnoverEgp = 0;
     let totalVolume = 0;
     let totalTrades = 0;
-
-    for (const stock of EGX_STOCKS_UNIVERSE) {
-      const diff = stock.currentPrice - stock.prevClose;
+    for (const stock of priced as any[]) {
+      const previous = typeof stock.prevClose === 'number' ? stock.prevClose : null;
+      if (previous === null) continue;
+      const diff = stock.currentPrice - previous;
       if (diff > 0.0001) advancing++;
       else if (diff < -0.0001) declining++;
       else unchanged++;
-      totalTurnoverEgp += stock.currency === 'USD' ? stock.valueTraded * live.fxUsdEgp : stock.valueTraded;
-      totalVolume += stock.volume;
-      totalTrades += stock.tradesCount;
+      totalTurnoverEgp += typeof stock.valueTraded === 'number' ? stock.valueTraded : 0;
+      totalVolume += typeof stock.volume === 'number' ? stock.volume : 0;
+      totalTrades += typeof stock.tradesCount === 'number' ? stock.tradesCount : 0;
     }
 
-    const breadthRatio = declining > 0 ? Number((advancing / declining).toFixed(2)) : Number(advancing.toFixed(2));
-    let marketStatusAr: MarketMacroOverview['marketStatusAr'] = 'سوق عرضي محايد (Neutral)';
-    if (breadthRatio >= 1.8 && live.egx30.changePct >= 0.4) {
-      marketStatusAr = 'سوق صاعد قوي (Strong Bullish)';
-    } else if (breadthRatio >= 1.15 || live.egx70.changePct > 0.2) {
-      marketStatusAr = 'سوق صاعد متوازن (Bullish)';
-    } else if (breadthRatio < 0.7 && live.egx30.changePct < -0.8) {
-      marketStatusAr = 'سوق هابط حذر (Bearish)';
-    }
+    const quoteDates = priced.map((stock: any) => stock.quoteTimestamp).filter(Boolean).sort();
+    const lastQuote = quoteDates.length ? quoteDates[quoteDates.length - 1] : null;
+    const latestSession = lastQuote ? String(lastQuote).slice(0, 10) : null;
+    const breadthRatio = declining > 0 ? Number((advancing / declining).toFixed(2)) : null;
 
     return {
-      egx30: live.egx30,
-      egx70: live.egx70,
-      egx100: live.egx100,
-      totalTurnoverEgp: Math.round(totalTurnoverEgp),
-      totalVolume: Math.round(totalVolume),
-      totalTrades,
-      advancingStocks: advancing,
-      decliningStocks: declining,
-      unchangedStocks: unchanged,
+      // EGID's public delayed endpoint does not expose index levels; do not invent them.
+      egx30: { value: null, change: null, changePct: null },
+      egx70: { value: null, change: null, changePct: null },
+      egx100: { value: null, change: null, changePct: null },
+      totalTurnoverEgp: priced.length ? Math.round(totalTurnoverEgp) : null,
+      totalVolume: priced.length ? Math.round(totalVolume) : null,
+      totalTrades: priced.length ? totalTrades : null,
+      advancingStocks: priced.length ? advancing : null,
+      decliningStocks: priced.length ? declining : null,
+      unchangedStocks: priced.length ? unchanged : null,
       marketBreadthRatio: breadthRatio,
-      marketStatusAr,
+      marketStatusAr: priced.length ? 'اتساع السوق محسوب من الأسهم التي لها أسعار EGID متاحة فقط' : 'بيانات السوق غير متاحة حاليًا',
       cbeData: {
-        overnightLendingRate: 21.0,
-        overnightDepositRate: 20.0,
-        headlineInflationRate: 12.7,
-        coreInflationRate: 13.1,
-        fxUsdEgpRate: live.fxUsdEgp,
-        foreignReservesBillionUsd: 57.5,
-        lastCbeMeetingDate: '2026-10-29'
+        // CBE macro figures require a separately verified official feed.
+        overnightLendingRate: null,
+        overnightDepositRate: null,
+        headlineInflationRate: null,
+        coreInflationRate: null,
+        fxUsdEgpRate: null,
+        foreignReservesBillionUsd: null,
+        lastCbeMeetingDate: null
       },
-      lastMarketSessionDate: sessionDate,
-      lastSyncedAt: live.lastSyncedAt,
-      totalListedStocksCount: EGX_STOCKS_UNIVERSE.length,
+      lastMarketSessionDate: latestSession || LiveMarketSyncService.getLatestEgxSessionDate(),
+      lastSyncedAt: lastQuote || '',
+      totalListedStocksCount: stocks.length,
       isMarketOpenNow: LiveMarketSyncService.isEgxMarketOpenNow()
     };
   }
