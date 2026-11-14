@@ -128,7 +128,7 @@ export async function getEgidStockDirectory(): Promise<AnyRecord[]> {
     }
 
     stocks.sort((a, b) => a.ticker.localeCompare(b.ticker));
-    cached = { stocks, fetchedAt: Date.now(), directoryCount: directory.length, quoteCount: quoteByTicker.size };
+    cached = { stocks, fetchedAt: Date.now(), directoryCount: stocks.length, quoteCount: stocks.filter(stock => typeof stock.currentPrice === 'number' && stock.currentPrice > 0).length };
     return stocks;
   })();
 
@@ -143,7 +143,7 @@ export function getEgidFeedStatus() {
   return {
     provider: 'EGID',
     endpoint: BASE_URL,
-    status: cached ? 'CONNECTED' : 'NOT_CHECKED',
+    status: cached && cached.quoteCount > 0 ? 'CONNECTED' : cached ? 'NO_FRESH_QUOTES' : 'NOT_CHECKED',
     directoryCount: cached?.directoryCount ?? 0,
     quoteCount: cached?.quoteCount ?? 0,
     cachedAt: cached ? new Date(cached.fetchedAt).toISOString() : null,
