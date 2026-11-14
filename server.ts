@@ -86,7 +86,18 @@ async function createApp(includeFrontend = true) {
       const ticker = req.params.ticker.toUpperCase().replace('.CA', '');
       const stock = getEGXStock(ticker);
       if (!stock) {
-        res.status(404).json({ error: `Stock ${ticker} not found in Egyptian stock universe` });
+        const directoryStock = (await getEgidStockDirectory()).find((item: any) => item.ticker === ticker);
+        if (!directoryStock) {
+          res.status(404).json({ error: `Stock ${ticker} not found in the EGID security directory` });
+          return;
+        }
+        res.status(503).json({
+          error: 'السهم موجود في دليل EGID، لكن بياناته التاريخية غير متاحة عبر الاتصال الحالي. لم يتم إنشاء تحليل أو توصية من سعر واحد.',
+          stock: directoryStock,
+          dataSource: 'EGID',
+          quoteStatus: directoryStock.quoteStatus,
+          quoteTimestamp: directoryStock.quoteTimestamp
+        });
         return;
       }
       const [dailyRes, weeklyRes, monthlyRes, tvSnapshot] = await Promise.all([
