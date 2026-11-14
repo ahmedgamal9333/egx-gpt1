@@ -282,16 +282,16 @@ async function createApp(includeFrontend = true) {
   });
 
   // Portfolio endpoints
-  app.get('/api/portfolio', (_req: Request, res: Response) => {
+  app.get('/api/portfolio', async (_req: Request, res: Response) => {
     try {
-      const port = PortfolioService.getPortfolio();
+      const port = await PortfolioService.getPortfolio();
       res.json(port);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
   });
 
-  app.post('/api/portfolio/add', (req: Request, res: Response) => {
+  app.post('/api/portfolio/add', async (req: Request, res: Response) => {
     try {
       const { ticker, shares, buyPrice } = req.body;
       if (!ticker || !shares || !buyPrice) {
@@ -299,13 +299,13 @@ async function createApp(includeFrontend = true) {
         return;
       }
       PortfolioService.addHolding(ticker, Number(shares), Number(buyPrice));
-      res.json(PortfolioService.getPortfolio());
+      res.json(await PortfolioService.getPortfolio());
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
   });
 
-  app.post('/api/portfolio/remove', (req: Request, res: Response) => {
+  app.post('/api/portfolio/remove', async (req: Request, res: Response) => {
     try {
       const { ticker } = req.body;
       if (!ticker) {
