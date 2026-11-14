@@ -40,7 +40,7 @@ async function createApp(includeFrontend = true) {
   });
 
   // Market overview & macro data
-  app.get('/api/market/overview', (_req: Request, res: Response) => {
+  app.get('/api/market/overview', async (_req: Request, res: Response) => {
     try {
       const overview = await MarketDataService.getMarketOverview();
       res.json(overview);
@@ -57,7 +57,7 @@ async function createApp(includeFrontend = true) {
   app.post('/api/market/sync', async (_req: Request, res: Response) => {
     try {
       const syncResult = await LiveMarketSyncService.syncFromProviders();
-      const overview = MarketDataService.getMarketOverview();
+      const overview = await MarketDataService.getMarketOverview();
       const sources = SourceIntelligenceService.getReport();
       res.json({ syncResult, overview, sources });
     } catch (err: any) {
@@ -345,8 +345,9 @@ async function createApp(includeFrontend = true) {
   });
 
   // Data sources and health
-  app.get('/api/sources/status', (_req: Request, res: Response) => {
+  app.get('/api/sources/status', async (_req: Request, res: Response) => {
     try {
+      await getEgidStockDirectory();
       const report = SourceIntelligenceService.getReport();
       res.json(report);
     } catch (err: any) {
