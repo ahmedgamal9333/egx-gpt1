@@ -49,7 +49,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div className="flex items-center gap-2 mb-2">
               <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold flex items-center gap-1.5">
                 <Flame className="w-3.5 h-3.5" />
-                {lang === 'ar' ? 'نبض البورصة المصرية اللحظي' : 'Live EGX Market Pulse'}
+                {lang === 'ar' ? 'بيانات EGID المتأخرة' : 'EGID Delayed Market Data'}
               </span>
               <span className="text-xs text-slate-400 font-mono">
                 {marketOverview?.lastMarketSessionDate || new Date().toISOString().split('T')[0]}
@@ -60,8 +60,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </h1>
             <p className="text-sm text-slate-400 max-w-2xl mt-1.5 leading-relaxed">
               {lang === 'ar'
-                ? `تغطية شاملة لـ ${stocks.length || 260} سهماً مدرجاً في البورصة المصرية باستراتيجية التداول المتأرجح المتوازن، مدعومة بتحليل فني رقمي ومصادر بيانات محدثة.`
-                : `Evidence-based swing trading investment decisions covering ${stocks.length || 260} Egyptian listed equities.`}
+                ? `دليل الأوراق المالية المتاح من EGID: ${stocks.length} ورقة. الأسعار متأخرة، ولا تُصدر المنصة توصيات فنية حتى تتوفر بيانات تاريخية مرخصة وموثوقة.`
+                : `EGID delayed quotes for ${stocks.length} securities. Historical analysis is withheld until licensed historical data is connected.`}
             </p>
           </div>
 
@@ -70,23 +70,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <div>
               <span className="text-[11px] text-slate-400 block">{lang === 'ar' ? 'إجمالي قيمة التداول' : 'Total Turnover'}</span>
               <span className="text-lg font-black text-white font-mono-numbers">
-                {(marketOverview?.totalTurnoverEgp / 1000000000).toFixed(2)} مليار جم
+                {marketOverview?.totalTurnoverEgp == null ? 'غير متاح' : `${(marketOverview.totalTurnoverEgp / 1000000000).toFixed(2)} مليار جم`}
               </span>
             </div>
             <div className="w-px h-8 bg-slate-800"></div>
             <div>
               <span className="text-[11px] text-slate-400 block">{lang === 'ar' ? 'الأسهم الصاعدة / الهابطة' : 'Gainers / Losers'}</span>
               <div className="flex items-center gap-1.5 font-mono-numbers text-sm font-bold">
-                <span className="text-emerald-400">{marketOverview?.advancingStocks || 118} ↑</span>
+                <span className="text-emerald-400">{marketOverview?.advancingStocks ?? '—'} ↑</span>
                 <span className="text-slate-600">/</span>
-                <span className="text-rose-400">{marketOverview?.decliningStocks || 42} ↓</span>
+                <span className="text-rose-400">{marketOverview?.decliningStocks ?? '—'} ↓</span>
               </div>
             </div>
             <div className="w-px h-8 bg-slate-800"></div>
             <div>
               <span className="text-[11px] text-slate-400 block">{lang === 'ar' ? 'معامل اتساع السوق' : 'Market Breadth'}</span>
               <span className="text-sm font-bold text-cyan-400 font-mono-numbers">
-                {marketOverview?.marketBreadthRatio || 2.81}x صاعد
+                {marketOverview?.marketBreadthRatio == null ? 'غير متاح' : `${marketOverview.marketBreadthRatio}x`}
               </span>
             </div>
           </div>
