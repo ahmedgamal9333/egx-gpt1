@@ -129,7 +129,7 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
 
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block font-sans mb-1">الأسهم المزامنة</span>
-          <span className="text-2xl font-black text-cyan-400">{report.totalUniverseCount || 260} سهم</span>
+          <span className="text-2xl font-black text-cyan-400">{report.totalUniverseCount || 0} سهم</span>
           <span className="text-[10px] text-slate-500 block font-sans">متوسط استجابة {report.averageLatencyMs} ms</span>
         </div>
 
