@@ -231,11 +231,74 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                       <div className="text-end font-mono-numbers shrink-0">
                         <span className="font-bold text-white text-sm block">
-                          {s.currentPrice} {s.currency === 'USD' ? '$' : 'جم'}
+                          {typeof s.currentPrice === 'number' && s.currentPrice > 0
+                            ? `${s.currentPrice} ${s.currency === 'USD' ? '
+                      </div>
+                    </button>
+                  ))}
+                </>
+              ) : (
+                <div className="p-6 text-center text-xs text-slate-400 space-y-1">
+                  <div className="font-bold text-slate-200">
+                    {lang === 'ar' ? `لا توجد نتائج مطابقة لـ "${searchQuery}"` : `No matching stocks for "${searchQuery}"`}
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    {lang === 'ar'
+                      ? 'جرب البحث برمز السهم (مثل COMI, ETEL, TMGH) أو الاسم بالعربية أو الإنجليزية أو رقم ISIN'
+                      : 'Try searching by ticker, company name, or ISIN code'}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Action Controls */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {onOpenAiChat && (
+            <button
+              onClick={onOpenAiChat}
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-600/20 border border-emerald-500/40 hover:bg-emerald-600/30 text-emerald-300 hover:text-white text-xs font-bold transition-all whitespace-nowrap shrink-0"
+              title={lang === 'ar' ? 'المحلل الحواري الذكي' : 'AI Analyst Chat'}
+            >
+              <MessageSquareText className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{lang === 'ar' ? 'اسأل المحلل الذكي' : 'Ask AI'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={onOpenAlerts}
+            className="relative p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-all"
+            title={lang === 'ar' ? 'التنبيهات الذكية' : 'Smart Alerts'}
+          >
+            <Bell className="w-4 h-4" />
+            {unreadAlertsCount > 0 && (
+              <span className="absolute -top-1 -end-1 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                {unreadAlertsCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={onToggleLang}
+            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all"
+          >
+            <Globe className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{lang === 'ar' ? 'English' : 'عربي'}</span>
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+};
+ : 'جم'}`
+                            : (lang === 'ar' ? 'السعر غير متاح' : 'Quote unavailable')}
                         </span>
-                        <span className={`text-xs ${s.changePct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {s.changePct >= 0 ? `+${s.changePct}%` : `${s.changePct}%`}
-                        </span>
+                        {typeof s.changePct === 'number' && (
+                          <span className={`text-xs ${s.changePct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {s.changePct >= 0 ? `+${s.changePct}%` : `${s.changePct}%`}
+                          </span>
+                        )}
                       </div>
                     </button>
                   ))}
