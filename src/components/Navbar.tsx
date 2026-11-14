@@ -148,6 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           {typeof stock.currentPrice === 'number' && stock.currentPrice > 0 ? `${stock.currentPrice} ${stock.currency || 'EGP'}` : (lang === 'ar' ? 'السعر غير متاح' : 'Quote unavailable')}
                         </span>
                         {typeof stock.changePct === 'number' && <span className={`text-[11px] ${stock.changePct >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>{stock.changePct >= 0 ? '+' : ''}{stock.changePct}%</span>}
+                        {(stock as any).quoteTimestamp && <span className="block text-[10px] text-slate-500 mt-0.5">{lang === 'ar' ? 'EGID • آخر صفقة: ' : 'EGID • Last trade: '}{new Date((stock as any).quoteTimestamp).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-GB', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>}
                       </span>
                     </button>
                   ))}
