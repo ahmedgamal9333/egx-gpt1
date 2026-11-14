@@ -117,7 +117,7 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono-numbers">
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block font-sans mb-1">درجة سلامة البيانات</span>
-          <span className="text-2xl font-black text-emerald-400">{report.overallHealthScore}%</span>
+          <span className="text-2xl font-black text-emerald-400">{report.overallHealthScore == null ? 'غير مقاس' : `${report.overallHealthScore}%`}</span>
           <span className="text-[10px] text-slate-500 block font-sans">مزود واحد؛ لا توجد مطابقة مستقلة بعد</span>
         </div>
 
@@ -130,12 +130,12 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block font-sans mb-1">الأسهم المزامنة</span>
           <span className="text-2xl font-black text-cyan-400">{report.totalUniverseCount || 0} سهم</span>
-          <span className="text-[10px] text-slate-500 block font-sans">متوسط استجابة {report.averageLatencyMs} ms</span>
+          <span className="text-[10px] text-slate-500 block font-sans">متوسط استجابة {report.averageLatencyMs == null ? 'غير متاح' : `${report.averageLatencyMs} ms`}</span>
         </div>
 
         <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 shadow-xl">
           <span className="text-xs text-slate-400 block font-sans mb-1">التعارضات السعرية النشطة</span>
-          <span className="text-2xl font-black text-emerald-400">{report.activeDiscrepancies}</span>
+          <span className="text-2xl font-black text-emerald-400">{report.activeDiscrepancies == null ? 'غير متاح' : report.activeDiscrepancies}</span>
           <span className="text-[10px] text-slate-500 block font-sans">جلسة {report.lastMarketSessionDate}</span>
         </div>
       </div>
@@ -174,11 +174,11 @@ export const SourcesView: React.FC<SourcesViewProps> = ({ lang = 'ar', onMarketS
               <div className="grid grid-cols-3 gap-2 text-xs font-mono-numbers pt-2 border-t border-slate-800/60">
                 <div>
                   <span className="text-[10px] text-slate-500 block font-sans">الموثوقية</span>
-                  <span className="font-bold text-emerald-400">{p.reliabilityScore}%</span>
+                  <span className="font-bold text-emerald-400">{p.reliabilityScore == null ? 'غير مقاس' : `${p.reliabilityScore}%`}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-500 block font-sans">زمن الاستجابة</span>
-                  <span className="font-bold text-cyan-400">{p.latencyMs} ms</span>
+                  <span className="font-bold text-cyan-400">{p.latencyMs == null ? 'غير متاح' : `${p.latencyMs} ms`}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-500 block font-sans">آخر تحديث</span>
