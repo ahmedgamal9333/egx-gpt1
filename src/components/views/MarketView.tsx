@@ -10,6 +10,8 @@ interface MarketViewProps {
 export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' }) => {
   const [marketSymbol, setMarketSymbol] = useState<'EGX:EGX30' | 'EGX:EGX70EWI' | 'EGX:EGX100EWI' | 'FX_IDC:USDEGP'>('EGX:EGX30');
   if (!overview) return null;
+  const fmt = (value: number | null | undefined, digits = 2) => value == null || !Number.isFinite(value) ? 'غير متاح' : value.toLocaleString('en-US', { maximumFractionDigits: digits });
+  const breadthTotal = (overview.advancingStocks || 0) + (overview.decliningStocks || 0) + (overview.unchangedStocks || 0);
 
   return (
     <div className="space-y-6">
@@ -33,15 +35,15 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
           <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
             <span className="font-bold font-sans text-white text-base">مؤشر EGX30</span>
             <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">
-              +{overview.egx30.changePct}%
+              {overview.egx30.changePct == null ? 'غير متاح' : `${overview.egx30.changePct > 0 ? '+' : ''}${overview.egx30.changePct}%`}
             </span>
           </div>
           <div className="text-3xl font-black text-white mb-1">
-            {overview.egx30.value.toLocaleString()}
+            {fmt(overview.egx30.value)}
           </div>
           <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-sans">
             <TrendingUp className="w-3.5 h-3.5" />
-            +{overview.egx30.change} نقطة (صعود قياسي)
+            {fmt(overview.egx30.change)} نقطة (صعود قياسي)
           </div>
         </div>
 
@@ -50,15 +52,15 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
           <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
             <span className="font-bold font-sans text-white text-base">مؤشر EGX70 EWI</span>
             <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">
-              +{overview.egx70.changePct}%
+              {overview.egx70.changePct == null ? 'غير متاح' : `${overview.egx70.changePct > 0 ? '+' : ''}${overview.egx70.changePct}%`}
             </span>
           </div>
           <div className="text-3xl font-black text-white mb-1">
-            {overview.egx70.value.toLocaleString()}
+            {fmt(overview.egx70.value)}
           </div>
           <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-sans">
             <TrendingUp className="w-3.5 h-3.5" />
-            +{overview.egx70.change} نقطة (نشاط الأسهم المتوسطة)
+            {fmt(overview.egx70.change)} نقطة (نشاط الأسهم المتوسطة)
           </div>
         </div>
 
@@ -67,15 +69,15 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
           <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
             <span className="font-bold font-sans text-white text-base">مؤشر EGX100 الأوسع نطاقاً</span>
             <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">
-              +{overview.egx100.changePct}%
+              {overview.egx100.changePct == null ? 'غير متاح' : `${overview.egx100.changePct > 0 ? '+' : ''}${overview.egx100.changePct}%`}
             </span>
           </div>
           <div className="text-3xl font-black text-white mb-1">
-            {overview.egx100.value.toLocaleString()}
+            {fmt(overview.egx100.value)}
           </div>
           <div className="text-xs text-emerald-400 font-semibold flex items-center gap-1 font-sans">
             <TrendingUp className="w-3.5 h-3.5" />
-            +{overview.egx100.change} نقطة
+            {fmt(overview.egx100.change)} نقطة
           </div>
         </div>
       </div>
@@ -134,39 +136,39 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
             </h3>
           </div>
           <span className="text-xs text-slate-400 font-mono">
-            {lang === 'ar' ? `آخر مراجعة: ${overview.cbeData.lastCbeMeetingDate}` : overview.cbeData.lastCbeMeetingDate}
+            {lang === 'ar' ? `آخر مراجعة: ${(overview.cbeData.lastCbeMeetingDate || 'غير متاح')}` : (overview.cbeData.lastCbeMeetingDate || 'N/A')}
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 font-mono-numbers text-xs">
           <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
             <span className="text-slate-400 block text-[11px] mb-1">سعر الإقراض لليلة واحدة</span>
-            <span className="text-xl font-black text-white">{overview.cbeData.overnightLendingRate}%</span>
+            <span className="text-xl font-black text-white">{fmt(overview.cbeData.overnightLendingRate)}{overview.cbeData.overnightLendingRate == null ? '' : '%'}</span>
           </div>
 
           <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
             <span className="text-slate-400 block text-[11px] mb-1">سعر الإيداع لليلة واحدة</span>
-            <span className="text-xl font-black text-white">{overview.cbeData.overnightDepositRate}%</span>
+            <span className="text-xl font-black text-white">{fmt(overview.cbeData.overnightDepositRate)}{overview.cbeData.overnightDepositRate == null ? '' : '%'}</span>
           </div>
 
           <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
             <span className="text-slate-400 block text-[11px] mb-1">التضخم العام السنوي</span>
-            <span className="text-xl font-black text-amber-400">{overview.cbeData.headlineInflationRate}%</span>
+            <span className="text-xl font-black text-amber-400">{fmt(overview.cbeData.headlineInflationRate)}{overview.cbeData.headlineInflationRate == null ? '' : '%'}</span>
           </div>
 
           <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
             <span className="text-slate-400 block text-[11px] mb-1">التضخم الأساسي (Core)</span>
-            <span className="text-xl font-black text-cyan-400">{overview.cbeData.coreInflationRate}%</span>
+            <span className="text-xl font-black text-cyan-400">{fmt(overview.cbeData.coreInflationRate)}{overview.cbeData.coreInflationRate == null ? '' : '%'}</span>
           </div>
 
           <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
             <span className="text-slate-400 block text-[11px] mb-1">سعر صرف USD/EGP</span>
-            <span className="text-xl font-black text-emerald-400">{overview.cbeData.fxUsdEgpRate} جم</span>
+            <span className="text-xl font-black text-emerald-400">{fmt(overview.cbeData.fxUsdEgpRate)}</span>
           </div>
 
           <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
             <span className="text-slate-400 block text-[11px] mb-1">الاحتياطي النقدي الأجنبي</span>
-            <span className="text-xl font-black text-white">${overview.cbeData.foreignReservesBillionUsd}B</span>
+            <span className="text-xl font-black text-white">{overview.cbeData.foreignReservesBillionUsd == null ? 'غير متاح' : `${overview.cbeData.foreignReservesBillionUsd}B`}</span>
           </div>
         </div>
       </div>
@@ -184,21 +186,21 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
           <div className="space-y-3 font-mono-numbers">
             <div>
               <div className="flex justify-between text-xs mb-1 text-slate-300">
-                <span className="text-emerald-400 font-bold">{overview.advancingStocks} سهم صاعد</span>
-                <span className="text-rose-400 font-bold">{overview.decliningStocks} سهم هابط</span>
+                <span className="text-emerald-400 font-bold">{fmt(overview.advancingStocks)} سهم صاعد</span>
+                <span className="text-rose-400 font-bold">{fmt(overview.decliningStocks)} سهم هابط</span>
               </div>
               <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden flex">
                 <div
                   className="bg-emerald-500 h-full"
-                  style={{ width: `${(overview.advancingStocks / (overview.advancingStocks + overview.decliningStocks + overview.unchangedStocks)) * 100}%` }}
+                  style={{ width: `${(breadthTotal ? (overview.advancingStocks / breadthTotal) * 100 : 0)}%` }}
                 ></div>
                 <div
                   className="bg-slate-700 h-full"
-                  style={{ width: `${(overview.unchangedStocks / (overview.advancingStocks + overview.decliningStocks + overview.unchangedStocks)) * 100}%` }}
+                  style={{ width: `${(breadthTotal ? (overview.unchangedStocks / breadthTotal) * 100 : 0)}%` }}
                 ></div>
                 <div
                   className="bg-rose-500 h-full"
-                  style={{ width: `${(overview.decliningStocks / (overview.advancingStocks + overview.decliningStocks + overview.unchangedStocks)) * 100}%` }}
+                  style={{ width: `${(breadthTotal ? (overview.decliningStocks / breadthTotal) * 100 : 0)}%` }}
                 ></div>
               </div>
             </div>
@@ -206,15 +208,15 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
             <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2">
               <div className="bg-slate-950 p-2 rounded-lg border border-emerald-900/30">
                 <span className="text-slate-400 block text-[10px]">الأسهم الرابحة</span>
-                <strong className="text-emerald-400 text-sm">{overview.advancingStocks}</strong>
+                <strong className="text-emerald-400 text-sm">{fmt(overview.advancingStocks)}</strong>
               </div>
               <div className="bg-slate-950 p-2 rounded-lg border border-slate-800">
                 <span className="text-slate-400 block text-[10px]">دون تغيير</span>
-                <strong className="text-slate-300 text-sm">{overview.unchangedStocks}</strong>
+                <strong className="text-slate-300 text-sm">{fmt(overview.unchangedStocks)}</strong>
               </div>
               <div className="bg-slate-950 p-2 rounded-lg border border-rose-900/30">
                 <span className="text-slate-400 block text-[10px]">الأسهم الخاسرة</span>
-                <strong className="text-rose-400 text-sm">{overview.decliningStocks}</strong>
+                <strong className="text-rose-400 text-sm">{fmt(overview.decliningStocks)}</strong>
               </div>
             </div>
           </div>
@@ -232,21 +234,21 @@ export const MarketView: React.FC<MarketViewProps> = ({ overview, lang = 'ar' })
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
               <span className="text-slate-400 text-xs">قيمة التداول الإجمالية:</span>
               <strong className="text-lg text-white font-black">
-                {(overview.totalTurnoverEgp / 1000000000).toFixed(2)} مليار جنيه
+                {overview.totalTurnoverEgp == null ? 'غير متاح' : `${(overview.totalTurnoverEgp / 1000000000).toFixed(2)} مليار جنيه`}
               </strong>
             </div>
 
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
               <span className="text-slate-400 text-xs">إجمالي كمية الأسهم المتداولة:</span>
               <strong className="text-lg text-cyan-400 font-black">
-                {(overview.totalVolume / 1000000).toFixed(1)} مليون سهم
+                {overview.totalVolume == null ? 'غير متاح' : `${(overview.totalVolume / 1000000).toFixed(1)} مليون سهم`}
               </strong>
             </div>
 
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
               <span className="text-slate-400 text-xs">عدد العمليات والصفقات المنفذة:</span>
               <strong className="text-lg text-emerald-400 font-black">
-                {overview.totalTrades.toLocaleString()} صفقة
+                {overview.totalTrades == null ? 'غير متاح' : `${overview.totalTrades.toLocaleString()} صفقة`}
               </strong>
             </div>
           </div>
