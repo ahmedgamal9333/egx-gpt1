@@ -30,16 +30,16 @@ jobs:
               "./server/services/fundamentalAnalysisEngine": "./server/services/fundamentalAnalysisService",
           }
 
+          pattern = re.compile(r"(from\s+|import\s*\(\s*)(['\"])(\.{1,2}/[^'\"]+)(['\"])")
           for path in files:
               original = path.read_text()
               updated = original
               for old, new in replacements.items():
                   updated = updated.replace(old, new)
 
-              pattern = re.compile(r"(from\\s+|import\\s*\\(\\s*)(['\\"])(\\.{1,2}/[^'\\"]+)(['\\"])")
               def fix(match):
                   spec = match.group(3)
-                  if not re.search(r"\\.(?:js|mjs|cjs|json|node)$", spec):
+                  if not re.search(r"\.(?:js|mjs|cjs|json|node)$", spec):
                       spec += ".js"
                   return match.group(1) + match.group(2) + spec + match.group(4)
 
