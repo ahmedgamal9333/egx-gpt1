@@ -1,4 +1,4 @@
-import { getEGXStock } from "../data/egxStocks.js";
+import { getEgidStockDirectory } from "./egidMarketDataService.js";
 
 export interface PortfolioHolding {
   id: string;
@@ -16,6 +16,7 @@ export interface PortfolioHolding {
   aiAction: 'HOLD' | 'ADD' | 'REDUCE' | 'EXIT';
   aiActionAr: string;
   aiActionReasonAr: string;
+  quoteAvailable: boolean;
 }
 
 export interface PortfolioSummary {
@@ -27,46 +28,44 @@ export interface PortfolioSummary {
   totalEquity: number;
   dividendsEarned: number;
   holdings: PortfolioHolding[];
+  valuationComplete: boolean;
+  unpricedHoldingsCount: number;
 }
 
 export class PortfolioService {
   // Start empty. Real user transactions must be entered explicitly and persisted separately.
   private static userHoldings: { ticker: string; shares: number; buyPrice: number }[] = [];
 
-  public static getPortfolio(): PortfolioSummary {
+  public static async getPortfolio(): Promise<PortfolioSummary> {
     let totalCost = 0;
     let totalMarketValue = 0;
+    let pricedCost = 0;
+    const quotes = await getEgidStockDirectory();
+    const quoteByTicker = new Map(quotes.map((quote: any) => [quote.ticker, quote]));
 
     const enrichedHoldings: PortfolioHolding[] = this.userHoldings.map((h, idx) => {
-      const stock = getEGXStock(h.ticker);
-      const currentPrice = stock ? stock.currentPrice : 0;
+      const quote: any = quoteByTicker.get(h.ticker);
+      const quoteAvailable = typeof quote?.currentPrice === 'number' && quote.currentPrice > 0;
+      const currentPrice = quoteAvailable ? quote.currentPrice : 0;
       const cost = h.shares * h.buyPrice;
-      const val = h.shares * currentPrice;
-      const pl = val - cost;
-      const plPct = Number(((pl / cost) * 100).toFixed(2));
+      const val = quoteAvailable ? h.shares * currentPrice : 0;
+      const pl = quoteAvailable ? val - cost : 0;
+      const plPct = quoteAvailable && cost > 0 ? Number(((pl / cost) * 100).toFixed(2)) : 0;
       const fairValue = 0;
       const fairValueUpsidePct = 0;
 
       totalCost += cost;
-      totalMarketValue += val;
-
-      let aiAction: 'HOLD' | 'ADD' | 'REDUCE' | 'EXIT' = 'HOLD';
-      let aiActionAr = 'احتفاظ بالمركز (HOLD)';
-      let aiActionReasonAr = 'لا توجد توصية آلية؛ يلزم التحقق من بيانات السعر والقوائم المالية أولًا.';
-
-      if (plPct >= 20 && fairValueUpsidePct < 8) {
-        aiAction = 'REDUCE';
-        aiActionAr = 'تخفيف المركز وجني أرباح جزئية (REDUCE)';
-        aiActionReasonAr = 'تحقيق أرباح رأسمالية تفوق 20% واقتراب السعر من قمم المقاومة يبرر جني 30-50% من الأرباح.';
-      } else if (plPct < -8) {
-        aiAction = 'EXIT';
-        aiActionAr = 'وقف خسارة وتخارج (EXIT)';
-        aiActionReasonAr = 'تراجع السعر دون مستويات الدعم يقتضي تفعيل حماية رأس المال وتفادي تعميق الخسائر.';
-      } else if (fairValueUpsidePct > 20 && plPct > 0) {
-        aiAction = 'ADD';
-        aiActionAr = 'تعزيز المركز عند التصحيح (ADD)';
-        aiActionReasonAr = 'هامش أمان واسع يفوق 20% مع تدفق سيولة استثمارية تؤكد الجدارة الاستثمارية.';
+      if (quoteAvailable) {
+        totalMarketValue += val;
+        pricedCost += cost;
       }
+
+      const aiAction: 'HOLD' | 'ADD' | 'REDUCE' | 'EXIT' = 'HOLD';
+      const aiActionAr = 'لا توجد توصية آلية (HOLD)';
+      const aiActionReasonAr = quoteAvailable
+        ? 'السعر متاح من EGID لكنه متأخر؛ لا تتوفر بيانات تاريخية مرخصة كافية لإصدار قرار آلي.'
+        : 'لا يوجد سعر حديث موثق لهذا السهم؛ تقييم المركز والتوصية متوقفان.';
+
 
       return {
         id: `hld-${idx + 1}`,
@@ -83,27 +82,32 @@ export class PortfolioService {
         fairValueUpsidePct,
         aiAction,
         aiActionAr,
-        aiActionReasonAr
+        aiActionReasonAr,
+        quoteAvailable
       };
     });
 
     // Calculate allocations
     enrichedHoldings.forEach(h => {
-      h.allocationPct = totalMarketValue > 0 ? Number(((h.currentValue / totalMarketValue) * 100).toFixed(1)) : 0;
+      h.allocationPct = totalMarketValue > 0 && h.quoteAvailable ? Number(((h.currentValue / totalMarketValue) * 100).toFixed(1)) : 0;
     });
 
-    const totalPl = totalMarketValue - totalCost;
-    const totalPlPct = totalCost > 0 ? Number(((totalPl / totalCost) * 100).toFixed(2)) : 0;
+    const unpricedHoldingsCount = enrichedHoldings.filter(h => !h.quoteAvailable).length;
+    const valuationComplete = unpricedHoldingsCount === 0;
+    const totalPl = totalMarketValue - pricedCost;
+    const totalPlPct = pricedCost > 0 ? Number(((totalPl / pricedCost) * 100).toFixed(2)) : 0;
 
     return {
       totalCost,
       totalMarketValue,
       totalUnrealizedPl: totalPl,
       totalUnrealizedPlPct: totalPlPct,
-      cashBalance: 245000,
-      totalEquity: totalMarketValue + 245000,
-      dividendsEarned: 48600,
-      holdings: enrichedHoldings
+      cashBalance: 0,
+      totalEquity: totalMarketValue,
+      dividendsEarned: 0,
+      holdings: enrichedHoldings,
+      valuationComplete,
+      unpricedHoldingsCount
     };
   }
 
