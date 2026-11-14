@@ -1,6 +1,6 @@
-import { createServerlessApp } from '../server.ts';
+import { createServerlessApp } from './server-bundle.mjs';
 
-let appPromise: any;
+let appPromise: ReturnType<typeof createServerlessApp> | undefined;
 
 export default async function handler(req: any, res: any) {
   try {
