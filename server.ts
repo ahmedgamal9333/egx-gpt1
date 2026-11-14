@@ -19,6 +19,7 @@ import { WatchlistAlertService } from './server/services/watchlistAlertService';
 import { LiveMarketSyncService } from './server/services/liveMarketSyncService';
 import { getCachedStockBatches } from './server/services/stockScreenerService';
 import { AiChatService } from './server/services/aiChatService';
+import { dataCedarDailyBarsHandler } from './server/routes/dataCedarRoute';
 
 dotenv.config();
 
@@ -31,6 +32,9 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // DataCedar daily historical prices (key remains server-side in DATACEDAR_KEY)
+  app.get('/api/datacedar/:ticker/daily', dataCedarDailyBarsHandler);
 
   // Health endpoint
   app.get('/api/health', (_req: Request, res: Response) => {
