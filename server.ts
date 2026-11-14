@@ -17,6 +17,7 @@ import { SourceIntelligenceService } from './server/services/sourceIntelligenceS
 import { WatchlistAlertService } from './server/services/watchlistAlertService.js';
 import { LiveMarketSyncService } from './server/services/liveMarketSyncService.js';
 import { getCachedStockBatches } from './server/services/stockScreenerService.js';
+import { getEgidStockDirectory, getEgidFeedStatus } from './server/services/egidMarketDataService.js';
 import { AiChatService } from './server/services/aiChatService.js';
 
 dotenv.config();
@@ -48,6 +49,10 @@ async function createApp(includeFrontend = true) {
     }
   });
 
+  app.get('/api/sources/egid/status', (_req: Request, res: Response) => {
+    res.json(getEgidFeedStatus());
+  });
+
   // Manual or automated live market sync trigger
   app.post('/api/market/sync', async (_req: Request, res: Response) => {
     try {
@@ -61,12 +66,17 @@ async function createApp(includeFrontend = true) {
   });
 
   // Stock universe list with pre-calculated metrics & quick recommendations
-  app.get('/api/stocks', (_req: Request, res: Response) => {
+  app.get('/api/stocks', async (_req: Request, res: Response) => {
     try {
-      const { stocksList } = getCachedStockBatches();
+      const stocksList = await getEgidStockDirectory();
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+      res.setHeader('X-Market-Data-Source', 'EGID-Delayed');
       res.json(stocksList);
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error('EGID directory unavailable; returning verified-name fallback:', err?.message || err);
+      const { stocksList } = getCachedStockBatches();
+      res.setHeader('X-Market-Data-Source', 'Static-directory-fallback');
+      res.json(stocksList);
     }
   });
 
