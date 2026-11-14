@@ -99,6 +99,7 @@ export async function getEgidStockDirectory(): Promise<AnyRecord[]> {
         prevClose: previousClose,
         changePct: lastChangePct,
         volume: fresh ? numeric(quote?.TOTAL_VOLUME) : null,
+        tradesCount: fresh && Number.isFinite(Number(quote?.TOTAL_TRADES)) ? Number(quote.TOTAL_TRADES) : null,
         valueTraded: fresh ? numeric(quote?.TOTAL_VALUE) : null,
         marketCapEgp: fresh ? numeric(quote?.MARKET_CAP) : null,
         peRatio: fresh && Number(quote?.PE_RATIO) > 0 ? Number(quote.PE_RATIO) : null,
