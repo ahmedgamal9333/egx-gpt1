@@ -17,7 +17,7 @@ import { SourceIntelligenceService } from './server/services/sourceIntelligenceS
 import { WatchlistAlertService } from './server/services/watchlistAlertService.js';
 import { LiveMarketSyncService } from './server/services/liveMarketSyncService.js';
 import { getCachedStockBatches } from './server/services/stockScreenerService.js';
-import { getEgidStockDirectory, getEgidFeedStatus } from './server/services/egidMarketDataService.js';
+import { getEgidStockDirectory } from './server/services/egidMarketDataService.js';
 import { AiChatService } from './server/services/aiChatService.js';
 
 dotenv.config();
@@ -47,10 +47,6 @@ async function createApp(includeFrontend = true) {
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
-  });
-
-  app.get('/api/sources/egid/status', (_req: Request, res: Response) => {
-    res.json(getEgidFeedStatus());
   });
 
   // Manual or automated live market sync trigger
