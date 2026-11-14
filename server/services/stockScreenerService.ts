@@ -1,9 +1,9 @@
-import { EGX_STOCKS_UNIVERSE } from '../data/egxStocks';
-import { MarketDataService } from './marketDataService';
-import { TechnicalAnalysisEngine } from './technicalAnalysisService';
-import { FundamentalAnalysisEngine } from './fundamentalAnalysisService';
-import { FairValueValuationEngine } from './fairValueService';
-import { LiveMarketSyncService } from './liveMarketSyncService';
+import { EGX_STOCKS_UNIVERSE } from '../data/egxStocks.js';
+import { MarketDataService } from './marketDataService.js';
+import { TechnicalAnalysisEngine } from './technicalAnalysisService.js';
+import { FundamentalAnalysisEngine } from './fundamentalAnalysisService.js';
+import { FairValueValuationEngine } from './fairValueService.js';
+import { LiveMarketSyncService } from './liveMarketSyncService.js';
 
 let cachedSyncVersion = -1;
 let cachedStocksList: any[] = [];

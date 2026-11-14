@@ -1,4 +1,4 @@
-import type { TradingViewChartSnapshot } from './marketDataService';
+import type { TradingViewChartSnapshot } from './marketDataService.js';
 
 export interface Candle {
   date: string;

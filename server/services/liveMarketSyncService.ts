@@ -1,4 +1,4 @@
-import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks';
+import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks.js';
 
 export interface LiveIndicesState {
   egx30: { value: number; change: number; changePct: number };

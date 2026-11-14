@@ -1,17 +1,17 @@
 import { Content, FunctionDeclaration, GoogleGenAI, ThinkingLevel, Type } from '@google/genai';
-import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks';
-import { getCachedStockBatches } from './stockScreenerService';
-import { MarketDataService } from './marketDataService';
-import { TechnicalAnalysisEngine } from './technicalAnalysisService';
-import { FundamentalAnalysisEngine } from './fundamentalAnalysisService';
-import { FairValueValuationEngine } from './fairValueService';
-import { NewsDisclosureService } from './newsService';
-import { AiRecommendationEngine } from './aiRecommendationService';
-import { PortfolioService } from './portfolioService';
-import { RecommendationHistoryService } from './recommendationHistoryService';
-import { SourceIntelligenceService } from './sourceIntelligenceService';
-import { WatchlistAlertService } from './watchlistAlertService';
-import { BacktestingEngine } from './backtestingService';
+import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks.js';
+import { getCachedStockBatches } from './stockScreenerService.js';
+import { MarketDataService } from './marketDataService.js';
+import { TechnicalAnalysisEngine } from './technicalAnalysisService.js';
+import { FundamentalAnalysisEngine } from './fundamentalAnalysisService.js';
+import { FairValueValuationEngine } from './fairValueService.js';
+import { NewsDisclosureService } from './newsService.js';
+import { AiRecommendationEngine } from './aiRecommendationService.js';
+import { PortfolioService } from './portfolioService.js';
+import { RecommendationHistoryService } from './recommendationHistoryService.js';
+import { SourceIntelligenceService } from './sourceIntelligenceService.js';
+import { WatchlistAlertService } from './watchlistAlertService.js';
+import { BacktestingEngine } from './backtestingService.js';
 
 export interface ChatHistoryTurn {
   role: 'user' | 'model';

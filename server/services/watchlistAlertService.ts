@@ -1,4 +1,4 @@
-import { getEGXStock } from '../data/egxStocks';
+import { getEGXStock } from '../data/egxStocks.js';
 
 export interface SmartAlert {
   id: string;

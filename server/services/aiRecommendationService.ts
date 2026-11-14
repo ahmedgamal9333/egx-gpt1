@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
-import { TechnicalIndicatorsResult } from "./technicalAnalysisService";
-import { FundamentalDataResult } from "./fundamentalAnalysisService";
-import { FairValueResult } from "./fairValueService";
-import { NewsItem } from "./newsService";
-import { EGXStock } from "../data/egxStocks";
+import { TechnicalIndicatorsResult } from "./technicalAnalysisService.js";
+import { FundamentalDataResult } from "./fundamentalAnalysisService.js";
+import { FairValueResult } from "./fairValueService.js";
+import { NewsItem } from "./newsService.js";
+import { EGXStock } from "../data/egxStocks.js";
 
 export type RecommendationType = 
   | 'STRONG_BUY' 

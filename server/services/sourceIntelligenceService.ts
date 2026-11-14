@@ -1,5 +1,5 @@
-import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks';
-import { LiveMarketSyncService } from './liveMarketSyncService';
+import { EGX_STOCKS_UNIVERSE, getEGXStock } from '../data/egxStocks.js';
+import { LiveMarketSyncService } from './liveMarketSyncService.js';
 
 export interface DataSourceProvider {
   id: string;
