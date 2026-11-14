@@ -2,7 +2,6 @@ import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
 
 import { EGX_STOCKS_UNIVERSE, getEGXStock } from './server/data/egxStocks.js';
 import { MarketDataService } from './server/services/marketDataService.js';
@@ -423,6 +422,7 @@ async function createApp(includeFrontend = true) {
   // middleware only for the standalone AI Studio / local Express server.
   if (includeFrontend) {
     if (process.env.NODE_ENV !== 'production') {
+      const { createServer: createViteServer } = await import('vite');
       const vite = await createViteServer({
         server: {
           middlewareMode: true,
